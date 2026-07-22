@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<!-- v20250702 -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>CALL SHEET — 拍攝通告單 2026</title>
+<style>
+:root {
+  --bg:        #f4f6fa;
+  --bg2:       #ffffff;
+  --bg3:       #f8f9fc;
+  --bg4:       #eef1f7;
+  --border:    #dde3f0;
+  --border2:   #c4cfea;
+  --text:      #0f1a2e;
+  --text2:     #3d5278;
+  --text3:     #7a8fab;
+  --accent:    #1a56db;
+  --accent2:   #1040b0;
+  --accent-glow: rgba(26,86,219,0.12);
+  --green:     #0a7a3e;
+  --green-bg:  #e6f5ed;
+  --amber:     #92600a;
+  --amber-bg:  #fef6e4;
+  --purple:    #5b21b6;
+  --purple-bg: #ede9fe;
+  --red:       #c0180c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  width: 100%; min-height: 100vh;
+  font-family: -apple-system, 'PingFang TC', 'Heiti TC', sans-serif;
+  background: #dde3f0; font-size: 15px;
+}
+
+/* PC frame */
+@media (min-width: 600px) {
+  body { display: flex; align-items: flex-start; justify-content: center; padding: 32px 0 60px; background: #cdd3e0; }
+  #app-root { width: 390px; min-height: 100vh; background: var(--bg); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 48px rgba(26,86,219,0.15); position: relative; }
+  #lock-screen { position: absolute; border-radius: 16px; }
+  #loading { position: absolute; border-radius: 16px; }
+  .modal-backdrop { position: fixed; }
+  #pc-banner { display: flex !important; }
+}
+@media (max-width: 599px) {
+  #app-root { min-height: 100vh; background: var(--bg); }
+  #pc-banner { display: none !important; }
+}
+
+/* PC BANNER */
+#pc-banner {
+  display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 8888;
+  background: var(--accent); color: #fff;
+  align-items: center; justify-content: center; gap: 16px;
+  padding: 10px 20px; font-size: 13px;
+}
+#pc-banner a {
+  color: #fff; text-decoration: none; font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.5); border-radius: 6px; padding: 4px 12px;
+}
+
+/* LOCK */
+#lock-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #e8eef8 0%, #f4f6fa 50%, #eaf0fb 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px;
+}
+#lock-screen.hidden { display: none; }
+.lock-box {
+  width: 100%; max-width: 320px;
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 32px 28px;
+  box-shadow: 0 8px 32px rgba(26,86,219,0.10);
+}
+.lock-logo { font-size: 10px; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+.lock-title { font-size: 26px; font-weight: 800; color: var(--text); line-height: 1.1; margin-bottom: 4px; letter-spacing: -0.02em; }
+.lock-sub { font-size: 12px; color: var(--text3); margin-bottom: 28px; }
+.lock-icon { font-size: 36px; margin-bottom: 20px; text-align: center; }
+.lock-form { width: 100%; }
+.lock-form input {
+  width: 100%; background: var(--bg3); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 13px 16px; font-size: 16px; color: var(--text);
+  outline: none; margin-bottom: 10px; font-family: inherit; text-align: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.lock-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: #fff; }
+.lock-btn {
+  width: 100%; background: var(--accent); border: none; border-radius: 10px;
+  padding: 14px; font-size: 15px; font-weight: 700; color: #fff;
+  cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.25);
+}
+.lock-btn:active { background: var(--accent2); }
+.lock-error { color: var(--red); font-size: 12px; text-align: center; margin-top: 10px; min-height: 18px; }
+
+/* SCREENS */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* HOME */
+#home { background: var(--bg); }
+.home-hero {
+  background: #fff;
+  border-bottom: 1.5px solid var(--border);
+  border-top: 3px solid var(--accent);
+  padding: max(env(safe-area-inset-top), 48px) 20px 18px;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.05);
+  flex-shrink: 0;
+}
+.home-hero-label {
+  font-size: 12px; letter-spacing: 0.18em; color: var(--accent);
+  font-weight: 700; margin-bottom: 4px; font-family: 'SF Mono', monospace;
+}
+.home-hero-title { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; line-height: 1.1; }
+.home-hero-sub { font-size: 12px; color: var(--text3); margin-top: 6px; }
+.sync-badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 3px;
+  background: var(--green-bg); color: var(--green);
+  border: 1px solid rgba(10,122,62,0.2);
+}
+.sync-badge.syncing { background: var(--amber-bg); color: var(--amber); border-color: rgba(146,96,10,0.2); }
+
+.home-body { padding: 16px; flex: 1; padding-bottom: max(env(safe-area-inset-bottom), 32px); }
+
+/* DATE TABS */
+.date-tabs-wrap { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 2px; }
+.date-tabs-wrap::-webkit-scrollbar { display: none; }
+.date-tab {
+  flex-shrink: 0; background: var(--bg2); border: 1.5px solid var(--border);
+  border-radius: 99px; padding: 7px 16px; font-size: 13px; font-weight: 500;
+  color: var(--text3); cursor: pointer; transition: all 0.15s;
+}
+.date-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.add-date-btn {
+  flex-shrink: 0; background: var(--bg2); border: 1.5px dashed var(--border2);
+  border-radius: 99px; padding: 6px 14px; font-size: 13px; color: var(--text3); cursor: pointer;
+}
+
+/* VENDOR CARDS */
+.vendor-card {
+  background: var(--bg2); border-radius: 12px; padding: 13px 14px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+  border: 1.5px solid var(--border);
+  cursor: pointer; transition: all 0.15s; position: relative;
+}
+.vendor-card:active { transform: scale(0.98); border-color: var(--accent); }
+.time-badge {
+  background: #eef3ff; border: 1.5px solid var(--border2);
+  border-radius: 8px; padding: 7px 9px; text-align: center; min-width: 56px; flex-shrink: 0;
+  font-family: 'SF Mono', monospace;
+}
+.time-start { font-size: 14px; font-weight: 700; color: var(--accent); }
+.time-end { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.vendor-card.active .time-badge, .vendor-card:active .time-badge {
+  background: var(--accent); border-color: var(--accent);
+}
+.vendor-card.active .time-start, .vendor-card:active .time-start { color: #fff; }
+.vendor-card.active .time-end, .vendor-card:active .time-end { color: rgba(255,255,255,0.7); }
+.vendor-info { flex: 1; min-width: 0; }
+.vendor-name { font-size: 15px; font-weight: 600; color: var(--text); }
+.vendor-sub { font-size: 12px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badges { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
+.badge-interview { background: var(--green-bg); color: var(--green); border: 1px solid rgba(10,122,62,0.2); }
+.badge-reel { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(146,96,10,0.2); }
+.badge-exclusive { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(91,33,182,0.2); }
+.card-arrow { color: var(--border2); font-size: 20px; flex-shrink: 0; }
+
+.add-vendor-btn {
+  width: 100%; background: var(--bg2); border: 1.5px dashed var(--border2);
+  border-radius: 12px; padding: 14px;
+  font-size: 14px; color: var(--text3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;
+  transition: all 0.15s;
+}
+.add-vendor-btn:active { border-color: var(--accent); color: var(--accent); }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 14px; }
+
+/* LOADING */
+.loading-overlay {
+  position: fixed; inset: 0; background: rgba(244,246,250,0.92); z-index: 500;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+}
+.loading-overlay.hidden { display: none; }
+.spinner { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 13px; color: var(--text2); }
+
+/* DETAIL */
+#detail { background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.detail-nav {
+  background: var(--bg2); border-bottom: 1.5px solid var(--border);
+  padding: max(env(safe-area-inset-top), 48px) 16px 12px;
+  display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0; position: sticky; top: 0; z-index: 10;
+  box-shadow: 0 1px 4px rgba(26,86,219,0.06);
+}
+.back-btn {
+  width: 36px; height: 36px; background: var(--bg4); border: 1.5px solid var(--border);
+  border-radius: 50%; color: var(--text2); font-size: 20px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+  transition: all 0.15s;
+}
+.back-btn:active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.detail-nav-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.detail-nav-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+.detail-hero {
+  background: var(--bg2); border-bottom: 1.5px solid var(--border);
+  border-top: 3px solid var(--accent);
+  padding: 16px 18px 18px; flex-shrink: 0;
+}
+.detail-time-text { font-size: 11px; color: var(--accent); margin-bottom: 4px; font-family: 'SF Mono', monospace; letter-spacing: 0.06em; }
+.detail-vendor-big { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+.detail-company-text { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+/* TAB BAR */
+.tab-bar {
+  background: var(--bg2); display: flex; border-bottom: 1.5px solid var(--border);
+  position: sticky; top: 88px; z-index: 9; flex-shrink: 0;
+  overflow-x: auto;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 1; border: none; background: none; padding: 12px 0;
+  font-size: 13px; font-weight: 500; color: var(--text3);
+  cursor: pointer; border-bottom: 2.5px solid transparent; transition: all 0.15s;
+  white-space: nowrap; min-width: 0; padding: 12px 10px;
+}
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.detail-body { padding: 14px; padding-bottom: max(env(safe-area-inset-bottom), 32px); }
+
+/* INFO CARD */
+.info-card {
+  background: var(--bg2); border-radius: 12px; margin-bottom: 12px;
+  overflow: hidden; border: 1.5px solid var(--border);
+  box-shadow: 0 1px 4px rgba(26,86,219,0.05);
+}
+.info-card-header {
+  padding: 10px 14px; font-size: 11px; font-weight: 700; color: var(--accent);
+  letter-spacing: 0.1em; border-bottom: 1px solid var(--border);
+  font-family: 'SF Mono', monospace; text-transform: uppercase;
+  background: #f0f4ff;
+}
+.info-row { display: flex; align-items: flex-start; padding: 10px 14px; border-bottom: 1px solid var(--border); gap: 12px; }
+.info-row:last-child { border-bottom: none; }
+.info-key { font-size: 11px; color: var(--text3); min-width: 56px; flex-shrink: 0; padding-top: 2px; font-family: 'SF Mono', monospace; }
+.info-val { font-size: 14px; color: var(--text); line-height: 1.6; flex: 1; }
+
+/* PRODUCT CARD */
+.product-section-label { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; margin: 4px 0 10px; font-family: 'SF Mono', monospace; text-transform: uppercase; }
+.product-card { background: var(--bg2); border-radius: 12px; margin-bottom: 10px; overflow: hidden; border: 1.5px solid var(--border); box-shadow: 0 1px 4px rgba(26,86,219,0.04); }
+.product-card-top { padding: 10px 14px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f0f4ff; }
+.product-card-title { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; font-family: 'SF Mono', monospace; }
+.product-img-zone { background: var(--bg4); height: 180px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
+.product-img-zone img { width: 100%; height: 100%; object-fit: cover; }
+.img-placeholder { text-align: center; }
+.img-placeholder-icon { font-size: 32px; color: var(--border2); }
+.img-placeholder-text { font-size: 12px; color: var(--text3); margin-top: 6px; }
+.img-uploading { font-size: 12px; color: var(--text2); }
+.product-text { padding: 12px 14px; font-size: 14px; color: var(--text2); line-height: 1.7; }
+
+/* QA */
+.qa-panel { padding: 14px; padding-bottom: max(env(safe-area-inset-bottom), 32px); }
+.qa-card { background: var(--bg2); border-radius: 12px; margin-bottom: 10px; overflow: hidden; border: 1.5px solid var(--border); box-shadow: 0 1px 4px rgba(26,86,219,0.04); }
+.qa-item { padding: 11px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-start; }
+.qa-item:last-child { border-bottom: none; }
+.qa-num { width: 22px; height: 22px; background: var(--accent); color: #fff; border-radius: 4px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; font-family: 'SF Mono', monospace; }
+.qa-text { font-size: 14px; color: var(--text); line-height: 1.6; flex: 1; }
+.delete-btn { background: none; border: none; color: var(--border2); font-size: 18px; cursor: pointer; padding: 0 4px; flex-shrink: 0; }
+.qa-add-btn { width: 100%; background: var(--bg3); border: 1.5px dashed var(--border); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px; }
+
+/* HIGHLIGHT */
+.highlight-panel { padding: 14px; padding-bottom: max(env(safe-area-inset-bottom), 32px); }
+.highlight-card { background: var(--bg2); border-radius: 12px; margin-bottom: 10px; overflow: hidden; border: 1.5px solid var(--border); }
+.highlight-card-header { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #f0f4ff; }
+.highlight-card-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.highlight-delete-btn { background: none; border: none; font-size: 12px; color: var(--text3); cursor: pointer; }
+.highlight-body { padding: 12px 14px; }
+.highlight-text { font-size: 14px; color: var(--text2); line-height: 1.7; white-space: pre-wrap; }
+.highlight-add-btn { width: 100%; background: var(--bg3); border: 1.5px dashed var(--border); border-radius: 10px; padding: 14px; font-size: 14px; color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* PRODUCT IMG actions */
+.img-actions { position: absolute; bottom: 0; left: 0; right: 0; display: flex; }
+.img-action-btn { flex: 1; background: rgba(26,86,219,0.75); border: none; color: #fff; padding: 10px 0; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.img-action-btn:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.2); }
+
+/* CAPTION */
+.product-caption-wrap { padding: 7px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; background: var(--bg3); }
+.product-caption-label { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+.product-caption-input { flex: 1; border: none; background: transparent; font-size: 13px; color: var(--text2); font-family: inherit; outline: none; }
+.caption-save-btn { background: var(--accent); border: none; color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; flex-shrink: 0; display: none; }
+.floorplan-zone { position: relative; background: var(--bg4); overflow: hidden; min-height: 100px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-bottom: 1px solid var(--border); }
+
+/* MODAL */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(13,26,46,0.4); z-index: 100; display: none; align-items: flex-end; }
+.modal-backdrop.open { display: flex; }
+.modal { background: var(--bg2); border-radius: 20px 20px 0 0; width: 100%; padding: 20px 20px max(env(safe-area-inset-bottom), 24px); max-height: 90vh; overflow-y: auto; border-top: 1.5px solid var(--border); box-shadow: 0 -8px 32px rgba(26,86,219,0.12); }
+.modal-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+.modal label { font-size: 11px; font-weight: 600; color: var(--text3); display: block; margin-bottom: 5px; margin-top: 12px; letter-spacing: 0.06em; text-transform: uppercase; font-family: 'SF Mono', monospace; }
+.modal input, .modal textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 14px; font-family: inherit; color: var(--text); background: var(--bg3); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.modal input:focus, .modal textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: #fff; }
+.modal textarea { resize: none; min-height: 80px; }
+.modal-row { display: flex; gap: 10px; }
+.modal-row > div { flex: 1; }
+.modal-btns { display: flex; gap: 10px; margin-top: 18px; }
+.btn-cancel { flex: 1; background: var(--bg4); border: 1.5px solid var(--border); border-radius: 12px; padding: 13px; font-size: 15px; color: var(--text2); cursor: pointer; font-family: inherit; }
+.btn-confirm { flex: 2; background: var(--accent); border: none; border-radius: 12px; padding: 13px; font-size: 15px; color: #fff; font-weight: 700; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(26,86,219,0.25); }
+.btn-confirm:active { background: var(--accent2); }
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.chip { padding: 7px 14px; border-radius: 99px; border: 1.5px solid var(--border); font-size: 13px; color: var(--text3); cursor: pointer; background: var(--bg3); font-family: inherit; }
+.chip.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* QR (kept for CSS, element removed from HTML) */
+.qr-box { display: none; }
+.qr-change-btn { display: none; }
+
+/* DRAG */
+.qr-box.drag-over, .product-img-zone.drag-over, .floorplan-zone.drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; background: #eef3ff; }
+</style>
+</head>
+<body>
+<div id="pc-banner">
+  📱 你正在使用手機版　<a href="desktop.html">→ 切換桌面版</a>
+</div>
+<div id="app-root">
+
+<!-- LOCK -->
+<div id="lock-screen">
+  <div class="lock-box">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <div class="lock-logo" style="margin-bottom:0;">CALL SHEET</div>
+      <img src="digitimes-logo.png" alt="DIGITIMES" style="height:16px;display:block;">
+    </div>
+    <div class="lock-title" style="font-size:34px;font-weight:800;color:var(--text);letter-spacing:-0.02em;line-height:1.1;margin-bottom:28px;">拍攝通告單</div>
+    <div class="lock-form">
+      <input type="password" id="lock-input" placeholder="請輸入密碼" autocomplete="off"
+        onkeydown="if(event.key==='Enter')checkPassword()">
+      <button class="lock-btn" onclick="checkPassword()">進入</button>
+      <div class="lock-error" id="lock-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay hidden" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">載入中...</div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="home">
+  <div class="home-hero">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <div class="home-hero-label" style="font-size:12px;letter-spacing:0.2em;margin-bottom:0;">CALL SHEET</div>
+      <img src="digitimes-logo.png" alt="DIGITIMES" style="height:14px;display:block;">
+    </div>
+    <div style="font-size:28px;font-weight:800;color:var(--text);letter-spacing:-0.02em;line-height:1.1;margin-bottom:10px;">拍攝通告單</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="sync-badge" id="sync-badge">● 已同步</span>
+      <button onclick="refreshData()" style="background:var(--bg4);border:1.5px solid var(--border);border-radius:6px;color:var(--text3);padding:3px 10px;font-size:11px;cursor:pointer;">🔄</button>
+    </div>
+  </div>
+  <div class="home-body">
+
+    <div class="date-tabs-wrap" id="date-tabs"></div>
+    <div id="date-crew-info" style="display:none;margin:0 0 8px;flex-wrap:wrap;gap:4px;"></div>
+    <div id="vendor-list"></div>
+    <button class="add-vendor-btn" onclick="openAddVendor()">＋ 新增拍攝項目</button>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="screen" id="detail">
+  <div class="detail-nav">
+    <button class="back-btn" onclick="showHome()">‹</button>
+    <div>
+      <div class="detail-nav-title" id="d-nav-title"></div>
+      <div class="detail-nav-sub">廠商資料卡</div>
+    </div>
+  </div>
+  <div class="detail-hero">
+    <div class="detail-time-text" id="d-time"></div>
+    <div class="detail-vendor-big" id="d-name"></div>
+    <div class="detail-company-text" id="d-company"></div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('info')">📋 資訊</button>
+    <button class="tab-btn" onclick="switchTab('highlights')">⭐ 亮點</button>
+    <button class="tab-btn" onclick="switchTab('products')">🖼 產品字卡</button>
+    <button class="tab-btn" onclick="switchTab('qa')">📝 訪綱</button>
+  </div>
+  <div id="tab-info" class="tab-panel active"><div class="detail-body" id="d-info-body"></div></div>
+  <div id="tab-highlights" class="tab-panel"><div class="highlight-panel" id="d-highlights-body"></div></div>
+  <div id="tab-products" class="tab-panel"><div class="detail-body" id="d-products-body"></div></div>
+  <div id="tab-qa" class="tab-panel"><div class="qa-panel" id="d-qa-body"></div></div>
+</div>
+
+<!-- MODAL: 新增日期 -->
+<div class="modal-backdrop" id="modal-date">
+  <div class="modal">
+    <div class="modal-title">新增拍攝日期</div>
+    <label>日期</label>
+    <input type="date" id="input-date">
+    <label>主持人</label>
+    <input type="text" id="input-host" placeholder="例：林思妤">
+    <label>攝影師</label>
+    <input type="text" id="input-camera" placeholder="例：Toby">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-date')">取消</button>
+      <button class="btn-confirm" onclick="confirmAddDate()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 新增廠商 -->
+<div class="modal-backdrop" id="modal-vendor">
+  <div class="modal">
+    <div class="modal-title">新增拍攝項目</div>
+    <label>廠商名稱</label>
+    <input type="text" id="v-name" placeholder="例：技嘉科技">
+    <div class="modal-row">
+      <div><label>開始時間</label><input type="time" id="v-start"></div>
+      <div><label>結束時間</label><input type="time" id="v-end"></div>
+    </div>
+    <label>攤位</label>
+    <input type="text" id="v-booth" placeholder="例：南港一館一樓 K0802">
+    <label>受訪者</label>
+    <input type="text" id="v-interviewee" placeholder="例：許維哲｜產品行銷經理">
+    <label>負責業務</label>
+    <input type="text" id="v-am" placeholder="例：Iris">
+    <label>拍攝類型</label>
+    <div class="chip-row">
+      <div class="chip selected" id="chip-interview" onclick="toggleChip('interview')">訪談</div>
+      <div class="chip" id="chip-exclusive" onclick="toggleChip('exclusive')">專訪</div>
+      <div class="chip" id="chip-reel" onclick="toggleChip('reel')">短影音</div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-vendor')">取消</button>
+      <button class="btn-confirm" onclick="confirmAddVendor()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 新增產品字卡 -->
+<div class="modal-backdrop" id="modal-product">
+  <div class="modal">
+    <div class="modal-title">新增產品字卡</div>
+    <label>字卡標題</label>
+    <input type="text" id="p-label" placeholder="例：產品字卡 01">
+    <label>內容文字</label>
+    <textarea id="p-text" placeholder="輸入產品說明文字..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-product')">取消</button>
+      <button class="btn-confirm" onclick="confirmAddProduct()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 新增訪綱 -->
+<div class="modal-backdrop" id="modal-qa">
+  <div class="modal">
+    <div class="modal-title">新增訪問題目</div>
+    <label>題目內容</label>
+    <textarea id="qa-text" placeholder="輸入訪問問題..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-qa')">取消</button>
+      <button class="btn-confirm" onclick="confirmAddQA()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 新增展出亮點 -->
+<div class="modal-backdrop" id="modal-highlight">
+  <div class="modal">
+    <div class="modal-title">新增展出亮點</div>
+    <label>亮點標題</label>
+    <input type="text" id="hl-title" placeholder="例：AI 推理加速解決方案">
+    <label>亮點說明</label>
+    <textarea id="hl-text" placeholder="輸入展出亮點說明..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-highlight')">取消</button>
+      <button class="btn-confirm" onclick="confirmAddHighlight()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAJ1s8whGqjvwIqwhLnoYfaK-FRpAm6FB8",
+  authDomain: "expo-shooting.firebaseapp.com",
+  projectId: "expo-shooting",
+  storageBucket: "expo-shooting.firebasestorage.app",
+  messagingSenderId: "1062327710220",
+  appId: "1:1062327710220:web:490153057b6a554fd33429"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ── CLOUDINARY ──
+const CLOUD_NAME = 'dz7ark1gs';
+const UPLOAD_PRESET = 'DTstudio';
+
+// ── STATE ──
+let dates = [], vendors = {}, currentDateId = null, currentDetail = null, currentQrUrl = '';
+let chipState = { interview: true, exclusive: false, reel: false };
+
+// ── CISCO 7/7 DATA ──
+const CISCO_VENDORS = [{"id": "c01", "shortname": "群環", "company": "群環科技", "start": "10:10", "end": "10:25", "booth": "Cisco Connect Partner Booth", "interviewee": "Rex", "am": "Willy Chen", "reel": false, "exclusive": true, "highlights": [{"title": "AI 極速網路時代：Wi-Fi 7 全面啟動", "text": "Cisco WiFi 7 × AI 極速傳輸，智能維運"}], "products": [{"label": "主題", "text": "AI 極速網路時代：Wi-Fi 7 全面啟動", "img": "", "caption": "", "shots": []}], "qa": ["群環與 Cisco 長期合作推動企業網路升級，這次展示的 Cisco Wi-Fi 7 最大的技術亮點是什麼？相較於過去的 Wi-Fi 世代，能為企業帶來哪些全新的價值？", "除了高速傳輸之外，群環如何結合 Cisco 的 AI Networking 技術，協助企業更有效率地管理無線網路並提升使用體驗？", "生成式 AI、智慧辦公與高密度應用快速發展，未來群環將如何持續攜手 Cisco，協助企業打造 AI Ready 的新世代網路環境？"]}, {"id": "c02", "shortname": "網達先進", "company": "網達先進科技", "start": "10:25", "end": "10:40", "booth": "Cisco Connect Partner Booth", "interviewee": "Paul Yang", "am": "Roger Loh", "reel": false, "exclusive": true, "highlights": [{"title": "Logicalis MXDR：實現「零信任」的未來", "text": "AI & Security"}], "products": [{"label": "主題", "text": "Logicalis MXDR：實現「零信任」的未來", "img": "", "caption": "", "shots": []}], "qa": ["網達與思科攜手推出 MXDR資安服務，與傳統資安防護相比，這項技術的特色為何？", "這次展出的 MXDR 如何整合 Cisco XDR、AI 分析與 SOC 服務，協助企業實現「從偵測到全面防禦」？", "抓準AI趨勢，網達和思科如何共同建置AI基礎建設？"]}, {"id": "c03", "shortname": "凌群電腦", "company": "凌群電腦股份有限公司", "start": "10:40", "end": "10:55", "booth": "Cisco Connect Partner Booth", "interviewee": "Ray Hsu", "am": "Ray Hsu", "reel": true, "exclusive": true, "highlights": [{"title": "迎接智慧電腦人的世代", "text": "UCS & Splunk — Syscom Cubi 整合"}], "products": [{"label": "主題", "text": "迎接智慧電腦人的世代\nSyscom Cubi + Cisco UCS + Splunk", "img": "", "caption": "", "shots": []}], "qa": ["凌羣和思科共同打造的劇院級沉浸式AI視訊會議體驗中心，目前的反饋如何？Syscom Cubi 如何結合 Cisco UCS 與 Splunk 的技術優勢，協助企業打造安全、可信且可治理的企業級 AI 平台？", "企業在導入生成式 AI 時，最擔心資料安全、治理與維運管理。Syscom Cubi 如何透過 Cisco 與 Splunk 的整合，協助企業兼顧 AI 效能、安全與治理？", "凌群電腦將如何持續攜手 Cisco，協助企業加速 AI 應用落地，打造更完整的 AI 基礎架構與智慧營運能力？"]}, {"id": "c04", "shortname": "華電聯網", "company": "華電聯網股份有限公司", "start": "10:55", "end": "11:10", "booth": "Cisco Connect Partner Booth", "interviewee": "待提供", "am": "", "reel": false, "exclusive": true, "highlights": [{"title": "以 AI 為核心的統一資安運營中心", "text": "AI & Security"}], "products": [{"label": "主題", "text": "以 AI 為核心的統一資安運營中心", "img": "", "caption": "", "shots": []}], "qa": ["華電及思科在無人機有哪些新的應用技術？", "華電投入綠色永續和５Ｇ車聯網最大的特色為何？", "抓準AI趨勢，華電聯網和思科如何共同建置AI基礎建設？"]}, {"id": "c05", "shortname": "聚誠", "company": "聚誠科技", "start": "11:10", "end": "11:25", "booth": "Cisco Connect Partner Booth", "interviewee": "6/29確定", "am": "", "reel": false, "exclusive": true, "highlights": [{"title": "Cisco 光通訊和網路解決方案", "text": "RON & Networking"}], "products": [{"label": "主題", "text": "Cisco 光通訊和網路解決方案", "img": "", "caption": "", "shots": []}], "qa": ["聚誠在系統整合的最大特色是甚麼？", "在資安防護領域當中的努力有哪些？", "抓準AI趨勢，聚誠和思科如何共同建置AI基礎建設？"]}, {"id": "c06", "shortname": "擎昊", "company": "擎昊科技", "start": "11:25", "end": "11:40", "booth": "Cisco Connect Partner Booth", "interviewee": "David", "am": "Bryan", "reel": true, "exclusive": true, "highlights": [{"title": "打造 AI 驅動的身份安全防護，落實 Zero Trust 架構", "text": "AI+Security — Cisco Identity Intelligence"}], "products": [{"label": "主題", "text": "打造 AI 驅動的身份安全防護\n落實 Zero Trust 架構", "img": "", "caption": "", "shots": []}], "qa": ["擎昊與 Cisco 如何結合 Cisco Identity Intelligence，協助企業打造 AI 驅動的身份安全防護？這套解決方案最大的特色與價值是什麼？", "隨著企業導入雲端與 AI 應用，身份管理成為資安的重要環節。這套解決方案如何協助企業即時發現高風險帳號、異常行為與過度授權，降低身份攻擊風險？", "AI 技術快速發展，也讓身份安全面臨更多新挑戰。未來擎昊將如何持續攜手 Cisco，協助企業深化 Zero Trust 架構，打造更智慧、更主動的身份安全防護機制？"]}, {"id": "c07", "shortname": "新立", "company": "新立科技", "start": "11:40", "end": "11:55", "booth": "Cisco Connect Partner Booth", "interviewee": "Travis Chiang", "am": "Travis Chiang", "reel": true, "exclusive": true, "highlights": [{"title": "Cisco Powered AIoT Data Platform", "text": "以 Cisco 基礎架構，打造安全可擴充的 AIoT 智慧平台"}], "products": [{"label": "主題", "text": "Cisco Powered AIoT Data Platform\n以 Cisco 基礎架構，打造安全可擴充的 AIoT 智慧平台", "img": "", "caption": "", "shots": []}], "qa": ["新立如何結合 Cisco AI 就緒基礎架構，打造兼具安全性、可擴充性與可維運性的 AIoT Data Platform？", "企業在推動智慧製造時，常面臨設備、資料與系統整合的挑戰。新立如何透過 Cisco Powered AIoT Data Platform，協助企業將資料真正轉化為 AI 驅動的營運成果？", "抓準AI趨勢，新立將如何持續攜手 Cisco，協助企業打造更完整、更安全且可持續擴充的 AIoT 智慧營運平台？"]}, {"id": "c08", "shortname": "零壹科技", "company": "零壹科技", "start": "12:00", "end": "12:15", "booth": "Cisco Connect Partner Booth", "interviewee": "Akira Chen", "am": "Derek Lin", "reel": true, "exclusive": true, "highlights": [{"title": "協助企業打造安全的資安智能維運平台", "text": "AI & Security — Full-Stack AIOps"}], "products": [{"label": "主題", "text": "協助企業打造安全的資安智能維運平台\nFull-Stack AIOps 製造業智能維運平台", "img": "", "caption": "", "shots": []}], "qa": ["零壹和思科共同合作，雙方如何整合彼此優勢，打造企業所需的一站式 IT 現代化與智慧維運解決方案？", "面對企業最關心的資安與維運挑戰，這次展示的 Full-Stack AIOps 平台如何透過 AI、數據整合與 Splunk 技術，協助企業更快速發現問題、提升維運效率？", "AI 已成為企業轉型的重要驅動力，未來零壹科技將如何攜手 Cisco，協助企業打造 AI Ready 的基礎架構與資安韌性？"]}, {"id": "c09", "shortname": "晉泰科技", "company": "晉泰科技", "start": "12:15", "end": "12:30", "booth": "Cisco Connect Partner Booth", "interviewee": "Grace Kuan", "am": "Jacob Huang", "reel": true, "exclusive": true, "highlights": [{"title": "AIoT智慧港灣/智慧製造", "text": "Networking + CAI"}], "products": [{"label": "主題", "text": "AIoT智慧港灣/智慧製造", "img": "", "caption": "", "shots": []}], "qa": ["雙方在高雄共同打造AIoT 永續創新研發中心，目前的成效如何？", "數位孿生技術近年來非常夯，晉泰做的努力有哪些？", "抓準AI趨勢，晉泰和思科如何共同建置AI基礎建設？"]}, {"id": "c10", "shortname": "中華電信", "company": "中華電信股份有限公司", "start": "12:30", "end": "12:45", "booth": "Cisco Connect Partner Booth", "interviewee": "Janet Tseng", "am": "Eva Yi", "reel": false, "exclusive": true, "highlights": [{"title": "新雲端守護方案", "text": "以租代買、代建代管，實現多據點企業的零負擔轉型"}], "products": [{"label": "主題", "text": "新雲端守護方案\n以租代買、代建代管，實現多據點企業的零負擔轉型", "img": "", "caption": "", "shots": []}], "qa": ["中華電信與 Cisco 長期合作推動企業數位轉型，這次展示的「雲端守護方案」有哪些特色？如何協助企業降低導入門檻？", "許多企業面臨多據點管理、人力不足及 IT 維運成本等挑戰，「雲端守護方案」如何透過代建、代管、代維運模式，協助企業更輕鬆完成數位轉型？", "中華電信將如何持續攜手 Cisco，協助企業打造更智慧、安全且具韌性的 IT 基礎架構？"]}, {"id": "c11", "shortname": "聯浚", "company": "聯浚科技", "start": "14:00", "end": "14:15", "booth": "Cisco Connect Partner Booth（下午）", "interviewee": "Steve Lu", "am": "Stephanie", "reel": false, "exclusive": true, "highlights": [{"title": "AI 驅動的智慧通訊新時代", "text": "智慧通訊 — 智慧醫療、雲端協作"}], "products": [{"label": "主題", "text": "AI 驅動的智慧通訊新時代", "img": "", "caption": "", "shots": []}], "qa": ["在智慧醫療的領域當中，雙方合作如何發揮效益？", "聯浚的技術在雲端協作平台如何整合運作？", "抓準AI趨勢，聯浚和思科如何共同建置AI基礎建設？"]}, {"id": "c12", "shortname": "邁達特", "company": "邁達特股份有限公司", "start": "14:15", "end": "14:30", "booth": "邁達特 + Cisco Booth（下午）", "interviewee": "李冠霆 Tony", "am": "Joe Huang", "reel": false, "exclusive": true, "highlights": [{"title": "智能網路驅動未來，AI資安守護核心", "text": "Cross Archi整合"}], "products": [{"label": "主題", "text": "智能網路驅動未來，AI資安守護核心", "img": "", "caption": "", "shots": []}], "qa": ["邁達特與 Cisco 長期合作推動企業數位轉型，本次展示整合 Cisco AI 智慧維運平台、AI 安全防護與全棧網路洞察，最大的特色與價值是什麼？", "邁達特如何透過 Cisco AI 技術，協助企業即時掌握網路狀態、降低資安風險並提升維運效率？", "未來邁達特將如何持續攜手 Cisco，透過 AI Networking 與 AI Security 的整合，協助企業打造更智慧、更安全且具韌性的數位基礎架構？"]}, {"id": "c13", "shortname": "NTT DATA", "company": "NTT DATA", "start": "14:30", "end": "14:45", "booth": "Cisco Booth（下午）", "interviewee": "待確認", "am": "", "reel": false, "exclusive": true, "highlights": [{"title": "AI / Future proof workplace / Security & 數位韌性", "text": "35年合作夥伴關係"}], "products": [{"label": "主題", "text": "AI / Future proof workplace / Security & 數位韌性\nNTT DATA × Cisco 35週年合作", "img": "", "caption": "", "shots": []}], "qa": ["NTT DATA 如何結合 Cisco 的技術，協助客戶解決實際的營運挑戰，並創造哪些具體效益？", "生成式 AI 正快速改變企業營運模式，未來 NTT DATA 將如何持續攜手 Cisco，協助企業打造 AI Ready 的數位基礎架構與智慧應用？", "35 年的合作一路走來，您認為 NTT DATA 與 Cisco 能夠持續攜手合作的原因是什麼？"]}];
+
+// ── LOCK ──
+const PWD = 'DT202607';
+if (sessionStorage.getItem('cpx_auth') === '1') {
+  document.getElementById('lock-screen').classList.add('hidden');
+  initApp();
+}
+window.checkPassword = function() {
+  const val = document.getElementById('lock-input').value;
+  if (val === PWD) {
+    sessionStorage.setItem('cpx_auth', '1');
+    document.getElementById('lock-screen').classList.add('hidden');
+    initApp();
+  } else {
+    document.getElementById('lock-error').textContent = '密碼錯誤，請再試一次';
+    document.getElementById('lock-input').value = '';
+    document.getElementById('lock-input').focus();
+  }
+};
+
+// ── LOADING ──
+function showLoading(text) { document.getElementById('loading').classList.remove('hidden'); document.getElementById('loading-text').textContent = text || '載入中...'; }
+function hideLoading() { document.getElementById('loading').classList.add('hidden'); }
+
+// ── FIREBASE: LOAD DATA (single fetch, with timeout + error handling) ──
+async function initApp() {
+  showLoading('連線資料庫...');
+  try {
+    await loadData();
+  } catch(err) {
+    console.error('Firebase error:', err);
+    showError('連線失敗：' + (err.message || err));
+    return;
+  }
+  hideLoading();
+  renderHome();
+  document.getElementById('home').classList.add('active');
+}
+
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} 逾時 (${ms/1000}秒)`)), ms))
+  ]);
+}
+
+function showError(msg) {
+  hideLoading();
+  const el = document.getElementById('loading');
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div style="text-align:center;padding:32px;">
+      <div style="font-size:36px;margin-bottom:12px;">⚠️</div>
+      <div style="font-size:14px;color:#555;margin-bottom:20px;">${msg}</div>
+      <div style="font-size:12px;color:#aaa;margin-bottom:20px;">請確認 Firebase Firestore 規則已開放<br>expo-shooting collection 的讀寫權限</div>
+      <button onclick="location.reload()" style="background:#0d1b2a;border:none;border-radius:10px;color:#fff;padding:12px 28px;font-size:14px;cursor:pointer;">重新整理</button>
+    </div>`;
+}
+
+async function loadData() {
+  const snap = await withTimeout(
+    getDoc(doc(db, 'expo-shooting', 'main')),
+    10000, '讀取資料'
+  );
+  if (snap.exists()) {
+    const data = snap.data();
+    // Auto-migrate: if version doesn't match or no Cisco data, overwrite
+    const isOldData = !data.version || data.version < 2;
+    if (isOldData) {
+      console.log('Old data detected, migrating to Cisco 7/7 data...');
+      await seedCiscoData();
+      return;
+    }
+    dates = data.dates || [];
+    vendors = data.vendors || {};
+    currentQrUrl = data.qrUrl || '';
+  } else {
+    dates = [
+      { id: 'd0', label: '7/7 (一)', host: '林思妤', camera1: 'Toby', camera2: '', post: '' }
+    ];
+    vendors = { d0: [
+      {
+            "id": "c01",
+            "shortname": "群環",
+            "company": "群環科技",
+            "start": "10:10",
+            "end": "10:25",
+            "booth": "Cisco Connect Partner Booth",
+            "interviewee": "Rex",
+            "am": "Willy Chen",
+            "reel": false,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "AI 極速網路時代：Wi-Fi 7 全面啟動",
+                        "text": "Cisco WiFi 7 × AI 極速傳輸，智能維運"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "AI 極速網路時代：Wi-Fi 7 全面啟動",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "群環與 Cisco 長期合作推動企業網路升級，這次展示的 Cisco Wi-Fi 7 最大的技術亮點是什麼？相較於過去的 Wi-Fi 世代，能為企業帶來哪些全新的價值？",
+                  "除了高速傳輸之外，群環如何結合 Cisco 的 AI Networking 技術，協助企業更有效率地管理無線網路並提升使用體驗？",
+                  "生成式 AI、智慧辦公與高密度應用快速發展，未來群環將如何持續攜手 Cisco，協助企業打造 AI Ready 的新世代網路環境？"
+            ]
+      },
+      {
+            "id": "c02",
+            "shortname": "網達先進",
+            "company": "網達先進科技",
+            "start": "10:25",
+            "end": "10:40",
+            "booth": "Cisco Connect Partner Booth",
+            "interviewee": "Paul Yang",
+            "am": "Roger Loh",
+            "reel": false,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "Logicalis MXDR：實現「零信任」的未來",
+                        "text": "AI & Security"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "Logicalis MXDR：實現「零信任」的未來",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "網達與思科攜手推出 MXDR資安服務，與傳統資安防護相比，這項技術的特色為何？",
+                  "這次展出的 MXDR 如何整合 Cisco XDR、AI 分析與 SOC 服務，協助企業實現「從偵測到全面防禦」？",
+                  "抓準AI趨勢，網達和思科如何共同建置AI基礎建設？"
+            ]
+      },
+      {
+            "id": "c03",
+            "shortname": "凌群電腦",
+            "company": "凌群電腦股份有限公司",
+            "start": "10:40",
+            "end": "10:55",
+            "booth": "Cisco Connect Partner Booth",
+            "interviewee": "Ray Hsu",
+            "am": "Ray Hsu",
+            "reel": true,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "迎接智慧電腦人的世代",
+                        "text": "UCS & Splunk — Syscom Cubi 與 Cisco 解決方案整合"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "迎接智慧電腦人的世代\nSyscom Cubi + Cisco UCS + Splunk",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "凌羣和思科共同打造的劇院級沉浸式AI視訊會議體驗中心，目前的反饋如何？Syscom Cubi 如何結合 Cisco UCS 與 Splunk 的技術優勢，協助企業打造安全、可信且可治理的企業級 AI 平台？",
+                  "企業在導入生成式 AI 時，最擔心資料安全、治理與維運管理。Syscom Cubi 如何透過 Cisco 與 Splunk 的整合，協助企業兼顧 AI 效能、安全與治理？",
+                  "凌群電腦將如何持續攜手 Cisco，協助企業加速 AI 應用落地，打造更完整的 AI 基礎架構與智慧營運能力？"
+            ]
+      },
+      {
+            "id": "c04",
+            "shortname": "華電聯網",
+            "company": "華電聯網股份有限公司",
+            "start": "10:55",
+            "end": "11:10",
+            "booth": "Cisco Connect Partner Booth",
+            "interviewee": "待提供",
+            "am": "",
+            "reel": false,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "以 AI 為核心的統一資安運營中心",
+                        "text": "AI & Security"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "以 AI 為核心的統一資安運營中心",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "華電及思科在無人機有哪些新的應用技術？",
+                  "華電投入綠色永續和５Ｇ車聯網最大的特色為何？",
+                  "抓準AI趨勢，華電聯網和思科如何共同建置AI基礎建設？"
+            ]
+      },
+      {
+            "id": "c05",
+            "shortname": "聚誠",
+            "company": "聚誠科技",
+            "start": "11:10",
+            "end": "11:25",
+            "booth": "Cisco Connect Partner Booth",
+            "interviewee": "6/29確定",
+            "am": "",
+            "reel": false,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "Cisco 光通訊和網路解決方案",
+                        "text": "RON & Networking"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "Cisco 光通訊和網路解決方案",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "聚誠在系統整合的最大特色是甚麼？",
+                  "在資安防護領域當中的努力有哪些？",
+                  "抓準AI趨勢，聚誠和思科如何共同建置AI基礎建設？"
+            ]
+      },
+      {
+            "id": "c06",
+            "shortname": "擎昊",
+            "company": "擎昊科技",
+            "start": "11:25",
+            "end": "11:40",
+            "booth": "Cisco Connect Partner Booth",
+            "interviewee": "David",
+            "am": "Bryan",
+            "reel": true,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "打造 AI 驅動的身份安全防護，落實 Zero Trust 架構",
+                        "text": "AI+Security — Cisco Identity Intelligence"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "打造 AI 驅動的身份安全防護\n落實 Zero Trust 架構",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "擎昊與 Cisco 如何結合 Cisco Identity Intelligence，協助企業打造 AI 驅動的身份安全防護？這套解決方案最大的特色與價值是什麼？",
+                  "隨著企業導入雲端與 AI 應用，身份管理成為資安的重要環節。這套解決方案如何協助企業即時發現高風險帳號、異常行為與過度授權，降低身份攻擊風險？",
+                  "AI 技術快速發展，也讓身份安全面臨更多新挑戰。未來擎昊將如何持續攜手 Cisco，協助企業深化 Zero Trust 架構，打造更智慧、更主動的身份安全防護機制？"
+            ]
+      },
+      {
+            "id": "c07",
+            "shortname": "新立",
+            "company": "新立科技",
+            "start": "11:40",
+            "end": "11:55",
+            "booth": "Cisco Connect Partner Booth",
+            "interviewee": "Travis Chiang",
+            "am": "Travis Chiang",
+            "reel": true,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "Cisco Powered AIoT Data Platform",
+                        "text": "以 Cisco 基礎架構，打造安全可擴充的 AIoT 智慧平台"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "Cisco Powered AIoT Data Platform\n以 Cisco 基礎架構，打造安全可擴充的 AIoT 智慧平台",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "新立如何結合 Cisco AI 就緒基礎架構，打造兼具安全性、可擴充性與可維運性的 AIoT Data Platform？",
+                  "企業在推動智慧製造時，常面臨設備、資料與系統整合的挑戰。新立如何透過 Cisco Powered AIoT Data Platform，協助企業將資料真正轉化為 AI 驅動的營運成果？是否能分享實際應用案例？",
+                  "抓準AI趨勢，新立將如何持續攜手 Cisco，協助企業打造更完整、更安全且可持續擴充的 AIoT 智慧營運平台？"
+            ]
+      },
+      {
+            "id": "c08",
+            "shortname": "零壹科技",
+            "company": "零壹科技",
+            "start": "12:00",
+            "end": "12:15",
+            "booth": "Cisco Connect Partner Booth",
+            "interviewee": "Akira Chen",
+            "am": "Derek Lin",
+            "reel": true,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "協助企業打造安全的資安智能維運平台",
+                        "text": "AI & Security — Full-Stack AIOps"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "協助企業打造安全的資安智能維運平台\nFull-Stack AIOps 製造業智能維運平台",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "零壹和思科共同合作，雙方如何整合彼此優勢，打造企業所需的一站式 IT 現代化與智慧維運解決方案？",
+                  "面對企業最關心的資安與維運挑戰，這次展示的 Full-Stack AIOps 平台如何透過 AI、數據整合與 Splunk 技術，協助企業更快速發現問題、提升維運效率？",
+                  "AI 已成為企業轉型的重要驅動力，未來零壹科技將如何攜手 Cisco，協助企業打造 AI Ready 的基礎架構與資安韌性？"
+            ]
+      },
+      {
+            "id": "c09",
+            "shortname": "晉泰科技",
+            "company": "晉泰科技",
+            "start": "12:15",
+            "end": "12:30",
+            "booth": "Cisco Connect Partner Booth",
+            "interviewee": "Grace Kuan",
+            "am": "Jacob Huang",
+            "reel": true,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "AIoT智慧港灣/智慧製造",
+                        "text": "Networking + CAI — OT安全、設備控管、AI應用"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "AIoT智慧港灣/智慧製造\n透過Cisco OT安全、設備控管、網路分段與資安風險分析，強化 OT 環境防護",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "雙方在高雄共同打造AIoT 永續創新研發中心，目前的成效如何？",
+                  "數位孿生技術近年來非常夯，晉泰做的努力有哪些？",
+                  "抓準AI趨勢，晉泰和思科如何共同建置AI基礎建設？"
+            ]
+      },
+      {
+            "id": "c10",
+            "shortname": "中華電信",
+            "company": "中華電信股份有限公司",
+            "start": "12:30",
+            "end": "12:45",
+            "booth": "Cisco Connect Partner Booth",
+            "interviewee": "Janet Tseng",
+            "am": "Eva Yi",
+            "reel": false,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "新雲端守護方案",
+                        "text": "以租代買、代建代管，實現多據點企業的零負擔轉型"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "新雲端守護方案\n以租代買、代建代管，實現多據點企業的零負擔轉型",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "中華電信與 Cisco 長期合作推動企業數位轉型，這次展示的「雲端守護方案」有哪些特色？如何協助企業降低導入門檻？",
+                  "許多企業面臨多據點管理、人力不足及 IT 維運成本等挑戰，「雲端守護方案」如何透過代建、代管、代維運模式，協助企業更輕鬆完成數位轉型？",
+                  "中華電信將如何持續攜手 Cisco，協助企業打造更智慧、安全且具韌性的 IT 基礎架構？"
+            ]
+      },
+      {
+            "id": "c11",
+            "shortname": "聯浚",
+            "company": "聯浚科技",
+            "start": "14:00",
+            "end": "14:15",
+            "booth": "Cisco Connect Partner Booth（下午）",
+            "interviewee": "Steve Lu",
+            "am": "Stephanie",
+            "reel": false,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "AI 驅動的智慧通訊新時代",
+                        "text": "智慧通訊 — 智慧醫療、雲端協作"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "AI 驅動的智慧通訊新時代",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "在智慧醫療的領域當中，雙方合作如何發揮效益？",
+                  "聯浚的技術在雲端協作平台如何整合運作？",
+                  "抓準AI趨勢，聯浚和思科如何共同建置AI基礎建設？"
+            ]
+      },
+      {
+            "id": "c12",
+            "shortname": "邁達特",
+            "company": "邁達特股份有限公司",
+            "start": "14:15",
+            "end": "14:30",
+            "booth": "邁達特 + Cisco Booth（下午）",
+            "interviewee": "李冠霆 Tony",
+            "am": "Joe Huang",
+            "reel": false,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "智能網路驅動未來，AI資安守護核心",
+                        "text": "Cross Archi整合 — Cisco AI 智慧維運平台、AI 安全防護、全棧網路洞察"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "智能網路驅動未來，AI資安守護核心\nCisco AI智慧維運平台 + AI代理安全防護 + AI全棧網路即時洞察",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "邁達特與 Cisco 長期合作推動企業數位轉型，本次展示整合 Cisco AI 智慧維運平台、AI 安全防護與全棧網路洞察，最大的特色與價值是什麼？",
+                  "邁達特如何透過 Cisco AI 技術，協助企業即時掌握網路狀態、降低資安風險並提升維運效率？",
+                  "未來邁達特將如何持續攜手 Cisco，透過 AI Networking 與 AI Security 的整合，協助企業打造更智慧、更安全且具韌性的數位基礎架構？"
+            ]
+      },
+      {
+            "id": "c13",
+            "shortname": "NTT DATA",
+            "company": "NTT DATA",
+            "start": "14:30",
+            "end": "14:45",
+            "booth": "Cisco Booth（下午）",
+            "interviewee": "待確認",
+            "am": "",
+            "reel": false,
+            "exclusive": true,
+            "highlights": [
+                  {
+                        "title": "AI / Future proof workplace / Security & 數位韌性",
+                        "text": "35年合作夥伴關係 — AI Ready 數位基礎架構"
+                  }
+            ],
+            "products": [
+                  {
+                        "label": "主題",
+                        "text": "AI / Future proof workplace / Security & 數位韌性\nNTT DATA × Cisco 35週年合作",
+                        "img": "",
+                        "caption": "",
+                        "shots": []
+                  }
+            ],
+            "qa": [
+                  "NTT DATA 如何結合 Cisco 的技術，協助客戶解決實際的營運挑戰，並創造哪些具體效益？",
+                  "生成式 AI 正快速改變企業營運模式，未來 NTT DATA 將如何持續攜手 Cisco，協助企業打造 AI Ready 的數位基礎架構與智慧應用？",
+                  "35 年的合作一路走來，您認為 NTT DATA 與 Cisco 能夠持續攜手合作的原因是什麼？"
+            ]
+      }
+] };
+    await saveData();
+  }
+  if (!currentDateId || !dates.find(d => d.id === currentDateId)) {
+    currentDateId = dates[0]?.id || null;
+  }
+  setSyncBadge('synced');
+}
+
+async function seedCiscoData() {
+  dates = [{ id: 'd0', label: '7/7 (一)', host: '林思妤', camera: 'Toby' }];
+  vendors = { d0: CISCO_VENDORS };
+  currentQrUrl = '';
+  const ref = doc(db, 'expo-shooting', 'main');
+  await setDoc(ref, { dates, vendors, qrUrl: '', version: 2 });
+  if (!currentDateId) currentDateId = 'd0';
+  setSyncBadge('synced');
+}
+
+window.refreshData = async function() {
+  showLoading('重新載入...');
+  try {
+    await loadData();
+    renderHome();
+  } catch(err) {
+    showError('重新載入失敗：' + (err.message || err));
+    return;
+  }
+  hideLoading();
+};
+
+function setSyncBadge(s) {
+  const el = document.getElementById('sync-badge');
+  if (!el) return;
+  if (s === 'syncing') { el.textContent = '● 同步中'; el.style.background='rgba(245,158,11,0.2)'; el.style.color='#f59e0b'; }
+  else { el.textContent = '● 已同步'; el.style.background='rgba(34,197,94,0.2)'; el.style.color='#6fcf97'; }
+}
+
+
+async function saveData() {
+  setSyncBadge('syncing');
+  await setDoc(doc(db, 'expo-shooting', 'main'), { dates, vendors, qrUrl: currentQrUrl, version: 2 });
+  setSyncBadge('synced');
+}
+
+
+
+// ── CLOUDINARY UPLOAD ──
+async function uploadToCloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', UPLOAD_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+  const data = await res.json();
+  return data.secure_url;
+}
+
+// QR section removed
+
+// ── RENDER HOME ──
+function renderHome() {
+  const tabsEl = document.getElementById('date-tabs');
+  tabsEl.innerHTML = '';
+  dates.forEach(d => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;flex-shrink:0;';
+    const btn = document.createElement('button');
+    btn.className = 'date-tab' + (d.id === currentDateId ? ' active' : '');
+    btn.textContent = d.label;
+    btn.onclick = () => { currentDateId = d.id; renderHome(); };
+    wrap.appendChild(btn);
+    // Delete button (only show on active, and if more than 1 date)
+    if (d.id === currentDateId && dates.length > 1) {
+      const del = document.createElement('button');
+      del.textContent = '✕';
+      del.style.cssText = 'background:none;border:none;color:#bbb;font-size:14px;cursor:pointer;padding:0 2px 0 4px;line-height:1;';
+      del.onclick = () => confirmDeleteDate(d.id, d.label);
+      wrap.appendChild(del);
+    }
+    tabsEl.appendChild(wrap);
+  });
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-date-btn';
+  addBtn.textContent = '＋ 新增日期';
+  addBtn.onclick = () => openModal('modal-date');
+  tabsEl.appendChild(addBtn);
+
+  // Show host/camera for current date - editable
+  const curDate = dates.find(d => d.id === currentDateId);
+  const dateInfoEl = document.getElementById('date-crew-info');
+  if (dateInfoEl && curDate) {
+    dateInfoEl.style.display = 'block';
+    const crewParts = [];
+    if (curDate.host) crewParts.push(`🎤 ${curDate.host}`);
+    if (curDate.camera1||curDate.camera) crewParts.push(`🎥 ${curDate.camera1||curDate.camera}`);
+    if (curDate.camera2) crewParts.push(`🎥 ${curDate.camera2}`);
+    if (curDate.post) crewParts.push(`🎬 ${curDate.post}`);
+    dateInfoEl.innerHTML = crewParts.map(p =>
+      `<span style="font-size:12px;color:#555;margin-right:10px;">${p}</span>`
+    ).join('');
+  }
+
+  const list = document.getElementById('vendor-list');
+  list.innerHTML = '';
+  const vlist = vendors[currentDateId] || [];
+  if (vlist.length === 0) {
+    list.innerHTML = '<div class="empty-state">📭 尚無拍攝項目<br>點下方按鈕新增</div>';
+  } else {
+    vlist.forEach(v => {
+      const card = document.createElement('div');
+      card.className = 'vendor-card';
+      card.innerHTML = `
+        <div class="time-badge"><div class="time-start">${v.start}</div><div class="time-end">${v.end}</div></div>
+        <div class="vendor-info">
+          <div class="vendor-name">${v.shortname}</div>
+          <div class="vendor-sub">${v.booth} ｜ ${v.am}</div>
+          <div class="badges">${v.interview!==false?'<span class=\"badge badge-interview\">訪談</span>':''}${v.exclusive?'<span class=\"badge badge-exclusive\">專訪</span>':''}${v.reel?'<span class=\"badge badge-reel\">短影音</span>':''}</div>
+        </div>
+        <div class="card-arrow">›</div>`;
+      card.onclick = () => showDetail(currentDateId, v.id);
+      list.appendChild(card);
+    });
+  }
+}
+
+// ── SHOW HOME ──
+window.showHome = function() {
+  document.getElementById('home').classList.add('active');
+  document.getElementById('detail').classList.remove('active');
+  window.scrollTo(0,0);
+};
+
+// ── DETAIL ──
+window.showDetail = function(dateId, vendorId) {
+  const v = (vendors[dateId] || []).find(x => x.id === vendorId);
+  if (!v) return;
+  currentDetail = { dateId, vendorId };
+  document.getElementById('d-nav-title').textContent = v.shortname;
+  document.getElementById('d-time').textContent = v.start + ' – ' + v.end;
+  document.getElementById('d-name').textContent = v.shortname;
+  document.getElementById('d-company').textContent = v.company;
+  renderInfoTab(v);
+  renderHighlightsTab(v);
+  renderProductsTab(v);
+  renderQATab(v);
+  switchTab('info');
+  document.getElementById('home').classList.remove('active');
+  document.getElementById('detail').classList.add('active');
+  window.scrollTo(0,0);
+};
+
+function getVendor() {
+  if (!currentDetail) return null;
+  return (vendors[currentDetail.dateId] || []).find(x => x.id === currentDetail.vendorId);
+}
+
+function renderInfoTab(v) {
+  const floorImg = v.floorplan || '';
+  document.getElementById('d-info-body').innerHTML = `
+    <div class="info-card" style="margin-bottom:14px;">
+      <div class="info-card-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>🗺 攤位平面圖</span>
+        <span style="font-size:10px;color:#bbb;">點擊上傳或拍照</span>
+      </div>
+      <div class="floorplan-zone" id="floorplan-zone" onclick="triggerFloorplan()"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleFloorplanDrop(event)">
+        ${floorImg
+          ? `<img src="${floorImg}" style="width:100%;display:block;" alt="平面圖"/>
+             <button class="img-change-btn" style="display:flex;position:absolute;bottom:8px;right:8px;" onclick="event.stopPropagation();triggerFloorplan()">↺ 更換</button>`
+          : `<div class="img-placeholder" style="padding:28px 0;">
+               <div class="img-placeholder-icon">🗺</div>
+               <div class="img-placeholder-text">上傳攤位平面圖</div>
+             </div>`}
+      </div>
+      <div style="display:flex;border-top:1px solid #f0f0f0;">
+        <button class="img-action-btn" style="flex:1;" onclick="triggerFloorplanCamera()">📷 拍照</button>
+        <button class="img-action-btn" style="flex:1;border-left:1px solid rgba(255,255,255,0.15);" onclick="triggerFloorplan()">🖼 相簿</button>
+      </div>
+      <input type="file" accept="image/*" id="floorplan-gallery" style="display:none" onchange="handleFloorplan(event)">
+      <input type="file" accept="image/*" capture="environment" id="floorplan-camera" style="display:none" onchange="handleFloorplan(event)">
+    </div>
+    <div class="info-card">
+      <div class="info-card-header">📍 拍攝資訊</div>
+      <div class="info-row"><div class="info-key">攤位</div><div class="info-val">${v.booth}</div></div>
+      <div class="info-row"><div class="info-key">受訪者</div><div class="info-val">${v.interviewee}</div></div>
+      <div class="info-row"><div class="info-key">負責業務</div><div class="info-val">${v.am}</div></div>
+      <div class="info-row"><div class="info-key">備注</div><div class="info-val" style="color:var(--text2);">${v.notes||'—'}</div></div>
+    </div>`;
+}
+
+function renderProductsTab(v) {
+  let html = '<div class="product-section-label">🖼 產品字卡</div>';
+  (v.products || []).forEach((p, pi) => {
+    const hasImg = !!p.img;
+    const caption = p.caption || '';
+    html += `
+      <div class="product-card">
+        <div class="product-card-top">
+          <span class="product-card-title">${p.label}</span>
+        </div>
+        <div class="product-img-zone" id="pzone-${pi}"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleProductImgDrop(event,${pi})">
+          ${hasImg
+            ? `<img src="${p.img}" alt="product"/>`
+            : `<div class="img-placeholder"><div class="img-placeholder-icon">🖼</div><div class="img-placeholder-text">拖曳、上傳或拍攝產品圖片</div></div>`}
+          <div class="img-actions">
+            <button class="img-action-btn" onclick="triggerProductImg(${pi},'camera')">📷 拍照</button>
+            <button class="img-action-btn" onclick="triggerProductImg(${pi},'gallery')">🖼 相簿</button>
+          </div>
+        </div>
+        <input type="file" accept="image/*" capture="environment" id="pimg-camera-${pi}" style="display:none" onchange="handleProductImg(event,${pi})">
+        <input type="file" accept="image/*" id="pimg-gallery-${pi}" style="display:none" onchange="handleProductImg(event,${pi})">
+        <div class="product-caption-wrap">
+          <span class="product-caption-label">圖說</span>
+          <input class="product-caption-input" id="pcaption-${pi}" type="text" value="${p.caption||''}" placeholder="輸入圖說文字..."
+            oninput="document.getElementById('pcaption-save-${pi}').style.display='flex'"
+            onblur="saveCaption(${pi})">
+          <button class="caption-save-btn" id="pcaption-save-${pi}" onclick="saveCaption(${pi})">儲存</button>
+        </div>
+        <div class="product-text">${p.text.replace(/\n/g,'<br>')}</div>
+      </div>`;
+  });
+  html += `<button class="add-vendor-btn" onclick="openAddProduct()">＋ 新增產品字卡</button>`;
+  document.getElementById('d-products-body').innerHTML = html;
+}
+
+function renderQATab(v) {
+  let html = '';
+  const qa = v.qa || [];
+  if (qa.length === 0) {
+    html += '<div class="empty-state" style="padding:32px 20px;">📝 尚無訪綱<br><span style="font-size:12px;color:#ccc;margin-top:4px;display:block;">點下方按鈕新增題目</span></div>';
+  } else {
+    html += '<div class="qa-card">';
+    qa.forEach((q, qi) => {
+      html += `<div class="qa-item">
+        <div class="qa-num">${qi+1}</div>
+        <div class="qa-text">${q}</div>
+        <button class="delete-btn" onclick="deleteQA(${qi})">✕</button>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  html += `<button class="qa-add-btn" onclick="openAddQA()">＋ 新增訪問題目</button>`;
+  document.getElementById('d-qa-body').innerHTML = html;
+}
+
+// ── TAB ──
+window.switchTab = function(name) {
+  ['info','highlights','products','qa'].forEach((t, i) => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===name);
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t===name);
+  });
+};
+
+// ── PRODUCT IMG ──
+window.triggerProductImg = function(pi, mode) {
+  const id = mode === 'camera' ? 'pimg-camera-'+pi : 'pimg-gallery-'+pi;
+  document.getElementById(id).click();
+};
+window.handleProductImg = async function(e, pi) {
+  const file = e.target.files[0]; if (!file) return;
+  const zone = document.getElementById('pzone-'+pi);
+  const actions = zone.querySelector('.img-actions') ? zone.querySelector('.img-actions').outerHTML : '';
+  zone.innerHTML = `<div class="img-placeholder"><div class="img-uploading">⏫ 上傳中...</div></div>${actions}`;
+  try {
+    const url = await uploadToCloudinary(file);
+    const v = getVendor(); if (!v) return;
+    v.products[pi].img = url;
+    await saveData();
+    renderProductsTab(v);
+  } catch(err) { alert('上傳失敗，請重試'); renderProductsTab(getVendor()); }
+};
+window.saveCaption = async function(pi) {
+  const v = getVendor(); if (!v) return;
+  const val = document.getElementById('pcaption-'+pi).value;
+  v.products[pi].caption = val;
+  const btn = document.getElementById('pcaption-save-'+pi);
+  if (btn) btn.style.display = 'none';
+  await saveData();
+};
+
+// ── MODAL ──
+window.openModal = function(id) { document.getElementById(id).classList.add('open'); };
+window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+document.querySelectorAll('.modal-backdrop').forEach(el => {
+  el.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+});
+
+// ── ADD DATE ──
+window.confirmAddDate = async function() {
+  const val = document.getElementById('input-date').value;
+  if (!val) return;
+  // Parse without timezone offset to avoid day-shift bug
+  const [y, m, d] = val.split('-').map(Number);
+  const days = ['日','一','二','三','四','五','六'];
+  const dow = new Date(y, m-1, d).getDay();
+  const label = `${m}/${d} (${days[dow]})`;
+  const host = document.getElementById('input-host').value.trim();
+  const camera = document.getElementById('input-camera').value.trim();
+  const id = 'd' + Date.now();
+  dates.push({ id, label, host, camera });
+  vendors[id] = [];
+  currentDateId = id;
+  closeModal('modal-date');
+  await saveData();
+};
+
+// ── ADD VENDOR ──
+window.toggleChip = function(name) {
+  chipState[name] = !chipState[name];
+  document.getElementById('chip-'+name).classList.toggle('selected', chipState[name]);
+};
+window.openAddVendor = function() {
+  chipState = { interview: true, exclusive: false, reel: false };
+  document.getElementById('chip-interview').classList.add('selected');
+  document.getElementById('chip-reel').classList.remove('selected');
+  ['v-name','v-booth','v-interviewee','v-am'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('v-start').value = '';
+  document.getElementById('v-end').value = '';
+  openModal('modal-vendor');
+};
+window.confirmAddVendor = async function() {
+  const name = document.getElementById('v-name').value.trim();
+  if (!name) return;
+  const v = {
+    id: 'v' + Date.now(),
+    shortname: name,
+    company: name,
+    start: document.getElementById('v-start').value || '00:00',
+    end: document.getElementById('v-end').value || '00:00',
+    booth: document.getElementById('v-booth').value.trim(),
+    interviewee: document.getElementById('v-interviewee').value.trim(),
+    am: document.getElementById('v-am').value.trim(),
+    exclusive: chipState.exclusive || false,
+    reel: chipState.reel,
+    products: [], qa: []
+  };
+  if (!vendors[currentDateId]) vendors[currentDateId] = [];
+  vendors[currentDateId].push(v);
+  vendors[currentDateId].sort((a,b) => a.start.localeCompare(b.start));
+  closeModal('modal-vendor');
+  await saveData();
+  // stay on current scroll position
+};
+
+// ── ADD PRODUCT ──
+window.openAddProduct = function() {
+  document.getElementById('p-label').value = '';
+  document.getElementById('p-text').value = '';
+  openModal('modal-product');
+};
+window.confirmAddProduct = async function() {
+  const v = getVendor(); if (!v) return;
+  const label = document.getElementById('p-label').value.trim() || '產品字卡';
+  const text = document.getElementById('p-text').value.trim();
+  v.products.push({ label, text, img: '' });
+  closeModal('modal-product');
+  await saveData();
+  renderProductsTab(v);
+  // stay on products tab
+};
+
+// ── HIGHLIGHTS ──
+function renderHighlightsTab(v) {
+  const hl = v.highlights || [];
+  let html = '';
+  if (hl.length === 0) {
+    html += '<div class="empty-state" style="padding:32px 20px;">⭐ 尚無展出亮點<br><span style="font-size:12px;color:#ccc;margin-top:4px;display:block;">點下方按鈕新增</span></div>';
+  } else {
+    hl.forEach((h, hi) => {
+      html += `<div class="highlight-card">
+        <div class="highlight-card-header">
+          <span class="highlight-card-title">⭐ ${h.title}</span>
+          <button class="highlight-delete-btn" onclick="deleteHighlight(${hi})">刪除</button>
+        </div>
+        <div class="highlight-body"><div class="highlight-text">${h.text}</div></div>
+      </div>`;
+    });
+  }
+  html += `<button class="highlight-add-btn" onclick="openAddHighlight()">＋ 新增展出亮點</button>`;
+  document.getElementById('d-highlights-body').innerHTML = html;
+}
+window.openAddHighlight = function() {
+  document.getElementById('hl-title').value = '';
+  document.getElementById('hl-text').value = '';
+  openModal('modal-highlight');
+};
+window.confirmAddHighlight = async function() {
+  const v = getVendor(); if (!v) return;
+  const title = document.getElementById('hl-title').value.trim();
+  const text = document.getElementById('hl-text').value.trim();
+  if (!title && !text) return;
+  if (!v.highlights) v.highlights = [];
+  v.highlights.push({ title: title || '亮點', text });
+  closeModal('modal-highlight');
+  await saveData();
+  renderHighlightsTab(v);
+  // stay on highlights tab
+};
+window.deleteHighlight = async function(hi) {
+  const v = getVendor(); if (!v) return;
+  v.highlights.splice(hi, 1);
+  await saveData();
+  renderHighlightsTab(v);
+};
+
+// ── ADD QA ──
+window.openAddQA = function() { document.getElementById('qa-text').value = ''; openModal('modal-qa'); };
+window.confirmAddQA = async function() {
+  const v = getVendor(); if (!v) return;
+  const text = document.getElementById('qa-text').value.trim();
+  if (!text) return;
+  if (!v.qa) v.qa = [];
+  v.qa.push(text);
+  closeModal('modal-qa');
+  await saveData();
+  renderQATab(v);
+  // stay on qa tab — no scroll
+};
+window.deleteQA = async function(qi) {
+  const v = getVendor(); if (!v) return;
+  v.qa.splice(qi, 1);
+  await saveData();
+  renderQATab(v);
+};
+
+// ── DELETE DATE ──
+// ── DRAG & DROP ──
+window.handleQRDrop = function() {};
+window.handleProductImgDrop = async function(e, pi) {
+  e.preventDefault();
+  document.getElementById('pzone-'+pi)?.classList.remove('drag-over');
+  const file = [...(e.dataTransfer.files || [])].find(f => f.type.startsWith('image/'));
+  if (!file) return;
+  const zone = document.getElementById('pzone-'+pi);
+  if (zone) zone.innerHTML = '<div class="img-placeholder" style="padding:28px 0;"><div class="img-uploading">⏫ 上傳中...</div></div>';
+  try {
+    const url = await uploadToCloudinary(file);
+    const v = getVendor(); if (!v) return;
+    v.products[pi].img = url;
+    await saveData();
+    renderProductsTab(v);
+  } catch(err) { alert('上傳失敗，請重試'); renderProductsTab(getVendor()); }
+};
+window.handleFloorplanDrop = async function(e) {
+  e.preventDefault();
+  document.getElementById('floorplan-zone')?.classList.remove('drag-over');
+  const file = [...(e.dataTransfer.files || [])].find(f => f.type.startsWith('image/'));
+  if (!file) return;
+  const zone = document.getElementById('floorplan-zone');
+  if (zone) zone.innerHTML = '<div class="img-placeholder" style="padding:28px 0;"><div class="img-uploading">⏫ 上傳中...</div></div>';
+  try {
+    const url = await uploadToCloudinary(file);
+    const v = getVendor(); if (!v) return;
+    v.floorplan = url;
+    await saveData();
+    renderInfoTab(v);
+  } catch(err) { alert('上傳失敗，請重試'); renderInfoTab(getVendor()); }
+};
+// Paste image (Ctrl+V) for QR
+
+
+window.confirmDeleteDate = function(dateId, label) {
+  if (!confirm(`確定要刪除「${label}」的所有拍攝資料嗎？\n此操作無法復原。`)) return;
+  dates = dates.filter(d => d.id !== dateId);
+  delete vendors[dateId];
+  currentDateId = dates[0]?.id || null;
+  saveData();
+};
+
+// ── FLOORPLAN ──
+window.triggerFloorplan = function() { document.getElementById('floorplan-gallery').click(); };
+window.triggerFloorplanCamera = function() { document.getElementById('floorplan-camera').click(); };
+window.handleFloorplan = async function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const zone = document.getElementById('floorplan-zone');
+  if (zone) zone.innerHTML = '<div class="img-placeholder" style="padding:28px 0;"><div class="img-uploading">⏫ 上傳中...</div></div>';
+  try {
+    const url = await uploadToCloudinary(file);
+    const v = getVendor(); if (!v) return;
+    v.floorplan = url;
+    await saveData();
+    renderInfoTab(v);
+  } catch(err) { alert('上傳失敗，請重試'); renderInfoTab(getVendor()); }
+};
+
+</script>
+</div><!-- /app-root -->
+</body>
+</html>

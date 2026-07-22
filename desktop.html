@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CALL SHEET — 拍攝通告單 2026 · DIGITIMES</title>
+<style>
+/* ═══════════════════════════════════════
+   CALL SHEET — Production Tool
+   Font: system mono + sans
+═══════════════════════════════════════ */
+:root {
+  --bg:       #f4f6fa;
+  --bg2:      #ffffff;
+  --bg3:      #f8f9fc;
+  --bg4:      #eef1f7;
+  --border:   #dde3f0;
+  --border2:  #c4cfea;
+  --text:     #0f1a2e;
+  --text2:    #3d5278;
+  --text3:    #7a8fab;
+  --accent:   #1a56db;
+  --accent2:  #1040b0;
+  --accent-glow: rgba(26,86,219,0.15);
+  --green:    #0a7a3e;
+  --green-bg: #e6f5ed;
+  --amber:    #92600a;
+  --amber-bg: #fef6e4;
+  --red:      #c0180c;
+  --red-bg:   #fde8e8;
+  --panel-bg: #f0f3f9;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: 'SF Pro Text', -apple-system, 'PingFang TC', 'Heiti TC', sans-serif;
+  background: var(--bg); color: var(--text);
+  font-size: 15px; line-height: 1.6;
+}
+
+/* ── LOCK ── */
+#lock-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #e8eef8 0%, #f4f6fa 50%, #eaf0fb 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+#lock-screen.hidden { display: none; }
+.lock-box {
+  width: 380px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px 36px;
+  box-shadow: 0 8px 40px rgba(26,86,219,0.10), 0 1px 4px rgba(0,0,0,0.06);
+}
+.lock-wordmark {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 10px; letter-spacing: 0.25em; color: var(--accent);
+  text-transform: uppercase; margin-bottom: 24px;
+  display: flex; align-items: center; gap: 10px;
+}
+.lock-wordmark::before, .lock-wordmark::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.lock-title {
+  font-size: 32px; font-weight: 800; color: var(--text);
+  letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px;
+}
+.lock-sub { font-size: 11px; color: var(--text3); margin-bottom: 32px; letter-spacing: 0.05em; }
+.lock-form input {
+  width: 100%; background: var(--bg3); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 12px 16px; font-size: 15px; color: var(--text);
+  outline: none; margin-bottom: 10px; font-family: inherit;
+  text-align: center; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.lock-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  background: #fff;
+}
+.lock-btn {
+  width: 100%; background: var(--accent); border: none; border-radius: 8px;
+  padding: 12px; font-size: 13px; font-weight: 700; color: #fff;
+  cursor: pointer; letter-spacing: 0.04em;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.25);
+}
+.lock-btn:hover { background: var(--accent2); box-shadow: 0 4px 16px rgba(26,86,219,0.35); transform: translateY(-1px); }
+.lock-btn:active { transform: translateY(0); }
+.lock-error { color: var(--red); font-size: 12px; text-align: center; margin-top: 8px; min-height: 18px; }
+
+/* ── LOADING ── */
+.loading-overlay {
+  position: fixed; inset: 0; background: rgba(244,246,250,0.92); z-index: 500;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+}
+.loading-overlay.hidden { display: none; }
+.spinner {
+  width: 32px; height: 32px; border: 2px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 12px; color: var(--text2); letter-spacing: 0.06em; }
+
+/* ── APP SHELL ── */
+#app { display: none; height: 100vh; flex-direction: column; }
+#app.active { display: flex; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: #fff; border-bottom: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 52px; flex-shrink: 0; z-index: 20;
+  box-shadow: 0 1px 6px rgba(26,86,219,0.06);
+}
+.topbar-left { display: flex; align-items: center; gap: 0; }
+.topbar-wordmark {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 16px; font-weight: 800; color: var(--text);
+  letter-spacing: 0.06em;
+  padding-right: 20px; margin-right: 20px;
+  border-right: 1.5px solid var(--border);
+}
+.topbar-wordmark span { color: var(--accent); }
+.topbar-context { font-size: 12px; color: var(--text3); letter-spacing: 0.04em; font-family: 'SF Mono', monospace; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.sync-badge {
+  font-size: 10px; font-family: 'SF Mono', monospace; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 3px;
+  background: var(--green-bg); color: var(--green);
+  border: 1px solid rgba(10,122,62,0.2);
+}
+.sync-badge.syncing {
+  background: var(--amber-bg); color: var(--amber);
+  border-color: rgba(146,96,10,0.2);
+}
+.topbar-btn {
+  background: var(--bg3); border: 1.5px solid var(--border); border-radius: 6px;
+  color: var(--text2); padding: 7px 16px; font-size: 13px; cursor: pointer;
+  font-family: inherit; transition: all 0.15s; letter-spacing: 0.02em;
+}
+.topbar-btn:hover {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(26,86,219,0.2); transform: translateY(-1px);
+}
+.topbar-btn:active { transform: translateY(0); }
+
+/* ── DATE BAR ── */
+.date-bar {
+  background: #fff; border-bottom: 1.5px solid var(--border);
+  display: flex; align-items: center; padding: 0 24px; gap: 0;
+  flex-shrink: 0; overflow-x: auto;
+}
+.date-bar::-webkit-scrollbar { display: none; }
+.dbar-tab {
+  border: none; background: none; padding: 13px 18px;
+  font-size: 14px; font-weight: 500; color: var(--text3); cursor: pointer;
+  border-bottom: 2px solid transparent; white-space: nowrap;
+  transition: all 0.12s; font-family: inherit; letter-spacing: 0.03em;
+}
+.dbar-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+.dbar-tab:hover:not(.active) { color: var(--text2); }
+.dbar-crew {
+  font-size: 13px; color: var(--text3); padding: 0 16px;
+  border-left: 1px solid var(--border); margin-left: 8px; white-space: nowrap;
+  font-family: 'SF Mono', monospace;
+}
+.dbar-crew input {
+  background: transparent; border: none; color: var(--text2); font-family: 'SF Mono', monospace;
+  font-size: 13px; outline: none; width: 72px;
+  border-bottom: 1px solid transparent;
+}
+.dbar-crew input:hover { border-bottom-color: var(--border2); }
+.dbar-crew input:focus { border-bottom-color: var(--accent); color: var(--text); }
+.dbar-del {
+  border: none; background: none; color: var(--text3); font-size: 12px;
+  cursor: pointer; padding: 2px 4px; transition: color 0.12s;
+}
+.dbar-del:hover { color: var(--red); }
+
+/* ── LAYOUT ── */
+.main { display: flex; flex: 1; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 280px; flex-shrink: 0; background: #fff;
+  border-right: 1.5px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-header {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sidebar-title {
+  font-family: 'SF Mono', monospace; font-size: 12px; font-weight: 700;
+  color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase;
+}
+.sidebar-add-btn {
+  background: var(--accent); border: none; border-radius: 4px;
+  color: #fff; padding: 7px 14px; font-size: 13px; cursor: pointer;
+  font-family: inherit; font-weight: 600; transition: background 0.12s;
+}
+.sidebar-add-btn:hover { background: var(--accent2); }
+.sidebar-list { flex: 1; overflow-y: auto; padding: 8px; }
+.sidebar-list::-webkit-scrollbar { width: 3px; }
+.sidebar-list::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.s-card {
+  border-radius: 6px; padding: 10px 12px; margin-bottom: 3px;
+  cursor: pointer; border: 1.5px solid transparent;
+  transition: all 0.15s; display: flex; align-items: center; gap: 10px;
+  position: relative;
+}
+.s-card:hover {
+  background: #f0f4ff; border-color: var(--border2);
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(26,86,219,0.08);
+}
+.s-card.active {
+  background: #eef3ff; border-color: var(--accent);
+  box-shadow: 0 2px 12px rgba(26,86,219,0.12);
+}
+.s-card.active::before {
+  content: ''; position: absolute; left: -1px; top: 4px; bottom: 4px;
+  width: 3px; background: var(--accent); border-radius: 0 2px 2px 0;
+}
+.s-time {
+  background: var(--bg4); border: 1.5px solid var(--border);
+  border-radius: 5px; padding: 5px 8px; text-align: center;
+  min-width: 50px; flex-shrink: 0;
+  font-family: 'SF Mono', monospace;
+}
+.s-time-start { font-size: 14px; font-weight: 700; color: var(--accent); }
+.s-time-end { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.s-card.active .s-time { background: var(--accent); border-color: var(--accent); }
+.s-card.active .s-time-start { color: #fff; }
+.s-card.active .s-time-end { color: rgba(255,255,255,0.65); }
+.s-info { flex: 1; min-width: 0; }
+.s-name { font-size: 15px; font-weight: 600; color: var(--text); }
+.s-sub { font-size: 12px; color: var(--text3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-badges { display: flex; gap: 4px; margin-top: 5px; }
+.badge { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 3px; font-family: 'SF Mono', monospace; letter-spacing: 0.04em; }
+.badge-interview { background: var(--green-bg); color: var(--green); border: 1px solid rgba(10,122,62,0.2); }
+.badge-reel { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(146,96,10,0.2); }
+.badge-exclusive { background: #ede9fe; color: #5b21b6; border: 1px solid rgba(91,33,182,0.2); }
+.s-empty { text-align: center; padding: 48px 16px; color: var(--text3); font-size: 12px; line-height: 1.8; }
+.s-del-btn { background: none; border: none; font-size: 14px; cursor: pointer; opacity: 0; padding: 4px; border-radius: 4px; flex-shrink: 0; transition: opacity 0.15s, background 0.15s; }
+.s-card:hover .s-del-btn { opacity: 0.5; }
+.s-del-btn:hover { opacity: 1 !important; background: var(--red-bg); }
+
+/* ── RIGHT PANEL ── */
+.panel { flex: 1; overflow-y: auto; background: var(--bg); }
+.panel::-webkit-scrollbar { width: 4px; }
+.panel::-webkit-scrollbar-thumb { background: var(--border); }
+
+.panel-empty {
+  height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: var(--text3); gap: 12px; background: var(--bg);
+}
+.panel-empty-icon { font-size: 40px; opacity: 0.4; }
+.panel-empty-text { font-size: 13px; letter-spacing: 0.05em; }
+
+/* ── PANEL HERO ── */
+.panel-hero {
+  background: #fff; border-bottom: 1.5px solid var(--border);
+  border-top: 3px solid var(--accent);
+  padding: 20px 28px 18px;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.05);
+}
+.ph-time {
+  font-family: 'SF Mono', monospace; font-size: 13px; color: var(--accent);
+  letter-spacing: 0.1em; margin-bottom: 6px;
+}
+.ph-name { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.ph-meta {
+  font-size: 12px; color: var(--text2); margin-top: 8px;
+  display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+}
+.ph-meta span { display: flex; align-items: center; gap: 5px; }
+
+/* ── PANEL TABS ── */
+.panel-tabs {
+  background: #fff; border-bottom: 1.5px solid var(--border);
+  display: flex; padding: 0 28px; position: sticky; top: 0; z-index: 5;
+  box-shadow: 0 1px 4px rgba(26,86,219,0.04);
+}
+.ptab {
+  border: none; background: none; padding: 13px 20px;
+  font-size: 14px; font-weight: 500; color: var(--text3); cursor: pointer;
+  border-bottom: 2px solid transparent; font-family: inherit;
+  transition: all 0.12s; letter-spacing: 0.03em;
+}
+.ptab.active { color: var(--text); border-bottom-color: var(--accent); }
+.ptab:hover:not(.active) { color: var(--text2); }
+
+/* ── PANEL BODY ── */
+.panel-body { padding: 24px 28px; max-width: 960px; }
+
+/* ── DATA ROWS ── */
+.pc-section { margin-bottom: 20px; }
+.pc-section-title {
+  font-family: 'SF Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--text3); letter-spacing: 0.15em; text-transform: uppercase;
+  margin-bottom: 8px; padding-left: 2px;
+}
+.pc-card {
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(26,86,219,0.05);
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.pc-card:hover { box-shadow: 0 4px 16px rgba(26,86,219,0.10); border-color: var(--border2); }
+.pc-row {
+  display: flex; padding: 10px 14px; border-bottom: 1px solid var(--border);
+  gap: 16px; align-items: flex-start; transition: background 0.12s;
+}
+.pc-row:hover { background: #f7f9ff; }
+.pc-row:last-child { border-bottom: none; }
+.pc-key {
+  font-family: 'SF Mono', monospace; font-size: 13px; color: var(--text3);
+  min-width: 68px; flex-shrink: 0; padding-top: 1px; letter-spacing: 0.04em;
+}
+.pc-val { font-size: 15px; color: var(--text); line-height: 1.6; }
+
+/* ── FLOORPLAN ── */
+.pc-floorplan {
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: 8px; overflow: hidden; margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(26,86,219,0.05);
+  transition: border-color 0.15s;
+}
+.pc-floorplan:hover { border-color: var(--border2); }
+.pc-floorplan-header {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  font-family: 'SF Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--text3); letter-spacing: 0.15em; text-transform: uppercase;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.pc-floorplan-img { width: 100%; display: block; max-height: 400px; object-fit: contain; background: var(--bg4); }
+.pc-floorplan-drop {
+  background: var(--bg4); border: 1.5px dashed var(--border2);
+  border-radius: 4px; margin: 12px 14px;
+  padding: 36px; text-align: center; cursor: pointer;
+  transition: all 0.15s; position: relative;
+}
+.pc-floorplan-drop:hover, .pc-floorplan-drop.drag-over {
+  background: rgba(59,130,246,0.06); border-color: var(--accent);
+}
+.pc-floorplan-drop p { font-size: 12px; color: var(--text3); margin-top: 8px; }
+
+/* ── PRODUCTS GRID ── */
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.pc-product {
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+  transition: all 0.15s;
+  box-shadow: 0 1px 4px rgba(26,86,219,0.05);
+}
+.pc-product:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 20px rgba(26,86,219,0.12);
+  transform: translateY(-2px);
+}
+.pc-product-header {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  font-family: 'SF Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--text3); letter-spacing: 0.08em;
+}
+.pc-product-img {
+  width: 100%; height: 200px; background: var(--bg3);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative; overflow: hidden;
+  border-bottom: 1px solid var(--border); transition: background 0.15s;
+}
+.pc-product-img:hover { background: #eef2ff; }
+.pc-product-img img { width: 100%; height: 100%; object-fit: cover; }
+.pc-product-img.drag-over { background: rgba(59,130,246,0.08); }
+.pc-product-drop-hint { text-align: center; }
+.pc-product-drop-hint div:first-child { font-size: 28px; color: var(--text3); opacity: 0.5; }
+.pc-product-drop-hint div:last-child { font-size: 11px; color: var(--text3); margin-top: 6px; }
+.pc-img-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(17,20,24,0.85); display: flex;
+}
+.pc-img-btn {
+  flex: 1; border: none; background: none; color: var(--text2);
+  padding: 8px; font-size: 11px; cursor: pointer; transition: color 0.12s;
+}
+.pc-img-btn:not(:last-child) { border-right: 1px solid var(--border); }
+.pc-img-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.pc-product-caption {
+  padding: 7px 14px; border-bottom: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: center; background: var(--bg4);
+}
+.pc-product-caption label { font-family: 'SF Mono', monospace; font-size: 10px; color: var(--text3); flex-shrink: 0; letter-spacing: 0.06em; }
+.pc-product-caption input { flex: 1; border: none; background: transparent; font-size: 12px; color: var(--text2); outline: none; font-family: inherit; }
+.pc-product-caption input:focus { color: var(--text); }
+.pc-product-caption button { background: var(--accent); border: none; border-radius: 3px; color: #fff; padding: 3px 8px; font-size: 10px; cursor: pointer; display: none; }
+.pc-product-text { padding: 12px 16px; font-size: 14px; color: var(--text2); line-height: 1.7; background: #fff; }
+.pc-add-btn {
+  background: transparent; border: 1.5px dashed var(--border2); border-radius: 6px; padding: 16px;
+  text-align: center; cursor: pointer; font-size: 12px; color: var(--text3); width: 100%;
+  transition: all 0.15s; font-family: inherit; letter-spacing: 0.04em;
+}
+.pc-add-btn:hover { background: rgba(59,130,246,0.06); border-color: var(--accent); color: var(--accent); }
+
+/* ── QA ── */
+.qa-list { display: flex; flex-direction: column; gap: 2px; }
+.pc-qa-item {
+  background: #fff; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start;
+  transition: all 0.15s; box-shadow: 0 1px 3px rgba(26,86,219,0.04);
+}
+.pc-qa-item:hover { border-color: var(--accent); box-shadow: 0 3px 12px rgba(26,86,219,0.1); }
+.pc-qa-num {
+  width: 22px; height: 22px; background: var(--accent); color: #fff;
+  border-radius: 4px; font-size: 10px; font-weight: 700; font-family: 'SF Mono', monospace;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+}
+.pc-qa-text { font-size: 15px; color: var(--text); line-height: 1.7; flex: 1; }
+.pc-qa-del { background: none; border: none; color: var(--text3); font-size: 16px; cursor: pointer; flex-shrink: 0; transition: color 0.12s; }
+.pc-qa-del:hover { color: var(--red); }
+
+/* ── HIGHLIGHTS ── */
+.hl-list { display: flex; flex-direction: column; gap: 8px; }
+.pc-hl-card {
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+  transition: all 0.15s; box-shadow: 0 1px 4px rgba(26,86,219,0.05);
+}
+.pc-hl-card:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(26,86,219,0.10); }
+.pc-hl-header {
+  background: linear-gradient(90deg, #f0f4ff 0%, #f8f9ff 100%);
+  border-bottom: 1.5px solid var(--border);
+  padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+}
+.pc-hl-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.pc-hl-del {
+  background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 4px; color: var(--red); padding: 3px 10px; font-size: 11px; cursor: pointer;
+}
+.pc-hl-body { padding: 0; }
+
+/* ── MODAL ── */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; }
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: #fff; border: 1.5px solid var(--border);
+  border-radius: 12px; width: 480px; max-width: 95vw; padding: 24px;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 16px 48px rgba(26,86,219,0.15), 0 2px 8px rgba(0,0,0,0.08);
+}
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+.modal label {
+  font-family: 'SF Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--text3); display: block; margin-bottom: 5px; margin-top: 14px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.modal input, .modal textarea {
+  width: 100%; background: var(--bg3); border: 1.5px solid var(--border);
+  border-radius: 6px; padding: 10px 14px; font-size: 15px; font-family: inherit;
+  color: var(--text); outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.modal input:focus, .modal textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); background: #fff; }
+.modal textarea { resize: none; min-height: 90px; }
+.modal-row { display: flex; gap: 10px; }
+.modal-row > div { flex: 1; }
+.modal-btns { display: flex; gap: 8px; margin-top: 20px; }
+.btn-cancel {
+  flex: 1; background: var(--bg4); border: 1px solid var(--border2);
+  border-radius: 5px; padding: 12px; font-size: 15px; color: var(--text2);
+  cursor: pointer; font-family: inherit;
+}
+.btn-cancel:hover { color: var(--text); border-color: var(--border2); }
+.btn-confirm {
+  flex: 2; background: var(--accent); border: none; border-radius: 5px;
+  padding: 12px; font-size: 15px; color: #fff; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: background 0.12s;
+}
+.btn-confirm:hover { background: var(--accent2); }
+.chip-row { display: flex; gap: 8px; margin-top: 6px; }
+.chip {
+  padding: 8px 16px; border-radius: 4px; border: 1px solid var(--border2);
+  font-size: 14px; color: var(--text2); cursor: pointer; background: var(--bg3); font-family: inherit;
+}
+.chip.selected { background: rgba(59,130,246,0.15); color: var(--accent); border-color: rgba(59,130,246,0.4); }
+
+/* ── EDITABLE FIELDS ── */
+.editable {
+  border: none; background: transparent; font-family: inherit;
+  color: inherit; outline: none; width: 100%;
+  border-bottom: 1px dashed transparent; transition: border-color 0.15s;
+}
+.editable:hover { border-bottom-color: rgba(255,255,255,0.15); }
+.editable:focus { border-bottom-color: var(--accent); background: rgba(59,130,246,0.06); border-radius: 3px; padding: 0 4px; }
+.editable-dark {
+  border: none; background: transparent; font-family: inherit;
+  color: var(--text); outline: none; width: 100%;
+  border-bottom: 1px dashed transparent; transition: border-color 0.15s;
+}
+.editable-dark:hover { border-bottom-color: var(--border2); }
+.editable-dark:focus { border-bottom-color: var(--accent); background: rgba(59,130,246,0.06); border-radius: 3px; padding: 2px 5px; }
+.editable-area {
+  border: none; background: transparent; font-family: inherit;
+  color: var(--text2); outline: none; width: 100%; resize: none;
+  line-height: 1.6; font-size: 15px;
+  border: 1px dashed transparent; border-radius: 4px;
+  transition: border-color 0.15s; padding: 2px 4px; min-height: 0;
+}
+.editable-area:hover { border-color: var(--border2); }
+.editable-area:focus { border-color: var(--accent); background: rgba(59,130,246,0.04); }
+.edit-hint { font-size: 10px; color: rgba(255,255,255,0.2); margin-left: 8px; font-weight: 400; }
+.pc-qa-item textarea {
+  border: none; background: transparent; font-family: inherit;
+  color: var(--text); outline: none; width: 100%; resize: none;
+  line-height: 1.7; font-size: 13px; min-height: 32px;
+  border-bottom: 1px dashed transparent; transition: border-color 0.15s;
+}
+.pc-qa-item textarea:hover { border-bottom-color: var(--border2); }
+.pc-qa-item textarea:focus { border-bottom-color: var(--accent); background: rgba(59,130,246,0.04); border-radius: 3px; padding: 3px 5px; }
+.pc-hl-title-input {
+  border: none; background: transparent; font-family: inherit;
+  color: var(--text); outline: none; font-size: 13px; font-weight: 600;
+  border-bottom: 1px dashed transparent; transition: border-color 0.15s; width: calc(100% - 70px);
+}
+.pc-hl-title-input:hover { border-bottom-color: var(--border2); }
+.pc-hl-title-input:focus { border-bottom-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); border-radius: 3px; padding: 0 4px; }
+.pc-product-label-input {
+  border: none; background: transparent; font-family: 'SF Mono', monospace;
+  color: var(--text3); outline: none; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  width: calc(100% - 80px); border-bottom: 1px dashed transparent;
+}
+.pc-product-label-input:hover { border-bottom-color: var(--border2); }
+.pc-product-label-input:focus { border-bottom-color: var(--accent); background: rgba(59,130,246,0.06); border-radius: 3px; padding: 0 4px; color: var(--text2); }
+
+/* ── POST PRODUCTION ── */
+.post-section { border-top: 1.5px solid var(--border); padding: 12px 14px; background: var(--bg3); }
+.post-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.post-section-title { font-family: 'SF Mono', monospace; font-size: 12px; font-weight: 600; color: var(--text3); letter-spacing: 0.12em; text-transform: uppercase; }
+.post-add-btn { background: var(--accent); border: none; border-radius: 4px; color: #fff; padding: 6px 12px; font-size: 13px; cursor: pointer; font-family: inherit; font-weight: 600; }
+.post-add-btn:hover { background: var(--accent2); }
+.post-shots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; }
+.post-shot { background: #fff; border-radius: 6px; overflow: hidden; border: 1.5px solid var(--border); transition: all 0.15s; box-shadow: 0 1px 3px rgba(26,86,219,0.05); }
+.post-shot:hover { border-color: var(--accent); box-shadow: 0 3px 10px rgba(26,86,219,0.12); transform: translateY(-1px); }
+.post-shot-img { width: 100%; height: 88px; object-fit: cover; background: var(--bg3); display: block; cursor: pointer; }
+.post-shot-drop {
+  width: 100%; height: 88px; background: var(--bg3);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 11px; color: var(--text3); text-align: center;
+  border: 1.5px dashed var(--border2); border-radius: 4px 4px 0 0; transition: all 0.15s;
+}
+.post-shot-drop:hover, .post-shot-drop.drag-over { background: rgba(59,130,246,0.06); border-color: var(--accent); color: var(--accent); }
+.post-shot-footer { padding: 5px 8px; display: flex; align-items: center; gap: 4px; }
+.post-shot-filename {
+  flex: 1; border: none; background: transparent; font-size: 12px; font-family: 'SF Mono', monospace;
+  color: var(--text3); outline: none; min-width: 0; border-bottom: 1px dashed transparent;
+}
+.post-shot-filename:hover { border-bottom-color: var(--border2); }
+.post-shot-filename:focus { border-bottom-color: var(--accent); color: var(--text2); }
+.post-shot-del { background: none; border: none; color: var(--text3); font-size: 12px; cursor: pointer; flex-shrink: 0; padding: 0; }
+.post-shot-del:hover { color: var(--red); }
+.post-empty {
+  text-align: center; padding: 16px; font-size: 11px; color: var(--text3);
+  border: 1.5px dashed var(--border); border-radius: 5px; cursor: pointer; transition: all 0.15s;
+}
+.post-empty:hover { border-color: var(--accent); color: var(--accent); background: rgba(59,130,246,0.04); }
+
+/* ── MICRO INTERACTIONS ── */
+button, .s-card, .pc-product, .dbar-tab, .ptab, .pc-add-btn, .post-empty {
+  cursor: pointer;
+}
+a { color: var(--accent); }
+::selection { background: var(--accent-glow); color: var(--accent2); }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg3); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* FLOORPLAN drop zone hover */
+.pc-floorplan-drop {
+  background: var(--bg3); border: 1.5px dashed var(--border2);
+}
+.pc-floorplan-drop:hover, .pc-floorplan-drop.drag-over {
+  background: #eef3ff; border-color: var(--accent);
+}
+
+/* Sidebar add btn hover */
+.sidebar-add-btn { transition: all 0.15s; }
+.sidebar-add-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(26,86,219,0.2); }
+
+/* Post add btn */
+.post-add-btn { transition: all 0.15s; }
+.post-add-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(26,86,219,0.2); }
+
+/* ptab hover */
+.ptab { transition: all 0.15s; }
+.ptab:hover:not(.active) { color: var(--accent); background: rgba(26,86,219,0.04); }
+
+/* dbar-tab hover */
+.dbar-tab:hover:not(.active) { color: var(--accent); background: rgba(26,86,219,0.04); }
+
+/* btn-confirm pulse */
+.btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,86,219,0.3); }
+.btn-confirm:active { transform: translateY(0); }
+.btn-cancel:hover { background: var(--bg4); }
+
+/* pc-img-btn hover */
+.pc-img-btn:hover { background: rgba(26,86,219,0.12); color: var(--accent); }
+
+/* ── DRAG DROP ── */
+.drop-zone { position: relative; transition: all 0.15s; }
+.drop-zone.drag-over::after {
+  content: 'DROP TO UPLOAD';
+  font-family: 'SF Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+  position: absolute; inset: 0; background: rgba(26,86,219,0.06);
+  border: 2px dashed var(--accent); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); z-index: 10; pointer-events: none;
+  box-shadow: inset 0 0 20px rgba(26,86,219,0.05);
+}
+
+/* ── MICRO INTERACTIONS ── */
+button, .s-card, .pc-product, .dbar-tab, .ptab, .pc-add-btn, .post-empty { cursor: pointer; }
+::selection { background: rgba(26,86,219,0.15); color: #1040b0; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg3); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+.sidebar-add-btn { transition: all 0.15s; }
+.sidebar-add-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(26,86,219,0.2); }
+.post-add-btn { transition: all 0.15s; }
+.post-add-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(26,86,219,0.2); }
+.ptab:hover:not(.active) { color: var(--accent); background: rgba(26,86,219,0.04); }
+.dbar-tab:hover:not(.active) { color: var(--accent); background: rgba(26,86,219,0.04); }
+.btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,86,219,0.3); }
+.btn-confirm:active { transform: translateY(0); }
+.pc-img-btn:hover { background: rgba(26,86,219,0.12) !important; color: var(--accent); }
+
+</style>
+</head>
+<body>
+
+<!-- LOCK -->
+<div id="lock-screen">
+  <div class="lock-box">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div class="lock-wordmark" style="margin-bottom:0;padding-right:0;margin-right:0;border-right:none;">CALL SHEET</div>
+      <img src="digitimes-logo.png" alt="DIGITIMES" style="height:18px;display:block;">
+    </div>
+    <div class="lock-title" style="font-size:32px;color:var(--text);font-weight:800;letter-spacing:-0.02em;margin-bottom:28px;">拍攝通告單</div>
+    <div class="lock-form">
+      <input type="password" id="lock-input" placeholder="請輸入密碼" autocomplete="off"
+        onkeydown="if(event.key==='Enter')checkPassword()">
+      <button class="lock-btn" onclick="checkPassword()">進入</button>
+      <div class="lock-error" id="lock-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay hidden" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">連線資料庫...</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-wordmark">CALL <span>SHEET</span></span>
+      <span class="topbar-context">拍攝通告單 2026 · DIGITIMES</span>
+    </div>
+    <div class="topbar-right">
+      <span class="sync-badge" id="sync-badge">● 同步中</span> <button onclick="refreshData()" style="background:rgba(255,255,255,0.12);border:none;border-radius:6px;color:#fff;padding:5px 12px;font-size:12px;cursor:pointer;" title="重新載入最新資料">🔄 刷新</button>
+      <button class="topbar-btn" onclick="openModal('modal-date')">＋ 新增日期</button>
+    </div>
+  </div>
+
+  <!-- DATE BAR -->
+  <div class="date-bar" id="date-bar"></div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">拍攝時程</span>
+        <button class="sidebar-add-btn" onclick="openModal('modal-vendor')">＋ 新增</button>
+      </div>
+      <div class="sidebar-list" id="sidebar-list"></div>
+    </div>
+
+    <!-- PANEL -->
+    <div class="panel" id="panel">
+      <div class="panel-empty" id="panel-empty">
+        <div class="panel-empty-icon">📋</div>
+        <div class="panel-empty-text">從左側選擇廠商查看詳細資訊</div>
+      </div>
+      <div id="panel-content" style="display:none;">
+        <div class="panel-hero">
+          <div class="ph-time" id="ph-time"></div>
+          <div class="ph-name" id="ph-name"></div>
+          <div class="ph-meta" id="ph-meta"></div>
+        </div>
+        <div class="panel-tabs">
+          <button class="ptab active" onclick="switchPTab('info')">📋 資訊</button>
+          <button class="ptab" onclick="switchPTab('highlights')">⭐ 展出亮點</button>
+          <button class="ptab" onclick="switchPTab('products')">🖼 產品字卡</button>
+          <button class="ptab" onclick="switchPTab('qa')">📝 訪綱</button>
+          <button class="ptab" onclick="switchPTab('post')">🎬 後製</button>
+        </div>
+        <div class="panel-body">
+          <div id="ptab-info"></div>
+          <div id="ptab-highlights" style="display:none;"></div>
+          <div id="ptab-products" style="display:none;"></div>
+          <div id="ptab-qa" style="display:none;"></div>
+          <div id="ptab-post" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 新增日期 -->
+<div class="modal-backdrop" id="modal-date">
+  <div class="modal">
+    <div class="modal-title">新增拍攝日期</div>
+    <label>日期</label>
+    <input type="date" id="input-date">
+    <label>🎤 HOST（主持人）</label>
+    <input type="text" id="input-host" placeholder="例：林思妤">
+    <label>🎥 訪談攝影</label>
+    <input type="text" id="input-camera1" placeholder="例：Toby">
+    <label>🎥 花絮攝影</label>
+    <input type="text" id="input-camera2" placeholder="例：阿達">
+    <label>🎬 後製人員</label>
+    <input type="text" id="input-post" placeholder="例：小明">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-date')">取消</button>
+      <button class="btn-confirm" onclick="confirmAddDate()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 新增廠商 -->
+<div class="modal-backdrop" id="modal-vendor">
+  <div class="modal">
+    <div class="modal-title">新增拍攝項目</div>
+    <label>廠商名稱</label>
+    <input type="text" id="v-name" placeholder="例：技嘉科技">
+    <div class="modal-row">
+      <div><label>開始時間</label><input type="time" id="v-start"></div>
+      <div><label>結束時間</label><input type="time" id="v-end"></div>
+    </div>
+    <label>攤位</label>
+    <input type="text" id="v-booth" placeholder="例：南港一館一樓 K0802">
+    <label>受訪者</label>
+    <input type="text" id="v-interviewee" placeholder="例：許維哲｜產品行銷經理">
+    <label>負責業務</label>
+    <input type="text" id="v-am" placeholder="例：Iris">
+    <label>拍攝類型</label>
+    <div class="chip-row">
+      <button class="chip selected" id="chip-interview" onclick="toggleChip('interview')">訪談</button>
+      <button class="chip" id="chip-exclusive" onclick="toggleChip('exclusive')">專訪</button>
+      <button class="chip" id="chip-reel" onclick="toggleChip('reel')">短影音</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-vendor')">取消</button>
+      <button class="btn-confirm" onclick="confirmAddVendor()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 新增產品字卡 -->
+<div class="modal-backdrop" id="modal-product">
+  <div class="modal">
+    <div class="modal-title">新增產品字卡</div>
+    <label>字卡標題</label>
+    <input type="text" id="p-label" placeholder="例：產品字卡 01">
+    <label>內容文字</label>
+    <textarea id="p-text" placeholder="輸入產品說明文字..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-product')">取消</button>
+      <button class="btn-confirm" onclick="confirmAddProduct()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 新增訪綱 -->
+<div class="modal-backdrop" id="modal-qa">
+  <div class="modal">
+    <div class="modal-title">新增訪問題目</div>
+    <label>題目內容</label>
+    <textarea id="qa-text" placeholder="輸入訪問問題..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-qa')">取消</button>
+      <button class="btn-confirm" onclick="confirmAddQA()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 新增展出亮點 -->
+<div class="modal-backdrop" id="modal-highlight">
+  <div class="modal">
+    <div class="modal-title">新增展出亮點</div>
+    <label>亮點標題</label>
+    <input type="text" id="hl-title" placeholder="例：AI 推理加速解決方案">
+    <label>亮點說明</label>
+    <textarea id="hl-text" placeholder="輸入展出亮點說明..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-highlight')">取消</button>
+      <button class="btn-confirm" onclick="confirmAddHighlight()">新增</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAJ1s8whGqjvwIqwhLnoYfaK-FRpAm6FB8",
+  authDomain: "expo-shooting.firebaseapp.com",
+  projectId: "expo-shooting",
+  storageBucket: "expo-shooting.firebasestorage.app",
+  messagingSenderId: "1062327710220",
+  appId: "1:1062327710220:web:490153057b6a554fd33429"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const CLOUD_NAME = 'dz7ark1gs';
+const UPLOAD_PRESET = 'DTstudio';
+const PWD = 'DT202607';
+
+let dates = [], vendors = {}, currentDateId = null, currentVendorId = null, currentQrUrl = '';
+const CISCO_VENDORS = [{"id": "c01", "shortname": "群環", "company": "群環科技", "start": "10:10", "end": "10:25", "booth": "Cisco Connect Partner Booth", "interviewee": "Rex", "am": "Willy Chen", "reel": false, "exclusive": true, "highlights": [{"title": "AI 極速網路時代：Wi-Fi 7 全面啟動", "text": "Cisco WiFi 7 × AI 極速傳輸，智能維運"}], "products": [{"label": "主題", "text": "AI 極速網路時代：Wi-Fi 7 全面啟動", "img": "", "caption": "", "shots": []}], "qa": ["群環與 Cisco 長期合作推動企業網路升級，這次展示的 Cisco Wi-Fi 7 最大的技術亮點是什麼？相較於過去的 Wi-Fi 世代，能為企業帶來哪些全新的價值？", "除了高速傳輸之外，群環如何結合 Cisco 的 AI Networking 技術，協助企業更有效率地管理無線網路並提升使用體驗？", "生成式 AI、智慧辦公與高密度應用快速發展，未來群環將如何持續攜手 Cisco，協助企業打造 AI Ready 的新世代網路環境？"]}, {"id": "c02", "shortname": "網達先進", "company": "網達先進科技", "start": "10:25", "end": "10:40", "booth": "Cisco Connect Partner Booth", "interviewee": "Paul Yang", "am": "Roger Loh", "reel": false, "exclusive": true, "highlights": [{"title": "Logicalis MXDR：實現「零信任」的未來", "text": "AI & Security"}], "products": [{"label": "主題", "text": "Logicalis MXDR：實現「零信任」的未來", "img": "", "caption": "", "shots": []}], "qa": ["網達與思科攜手推出 MXDR資安服務，與傳統資安防護相比，這項技術的特色為何？", "這次展出的 MXDR 如何整合 Cisco XDR、AI 分析與 SOC 服務，協助企業實現「從偵測到全面防禦」？", "抓準AI趨勢，網達和思科如何共同建置AI基礎建設？"]}, {"id": "c03", "shortname": "凌群電腦", "company": "凌群電腦股份有限公司", "start": "10:40", "end": "10:55", "booth": "Cisco Connect Partner Booth", "interviewee": "Ray Hsu", "am": "Ray Hsu", "reel": true, "exclusive": true, "highlights": [{"title": "迎接智慧電腦人的世代", "text": "UCS & Splunk — Syscom Cubi 整合"}], "products": [{"label": "主題", "text": "迎接智慧電腦人的世代\nSyscom Cubi + Cisco UCS + Splunk", "img": "", "caption": "", "shots": []}], "qa": ["凌羣和思科共同打造的劇院級沉浸式AI視訊會議體驗中心，目前的反饋如何？Syscom Cubi 如何結合 Cisco UCS 與 Splunk 的技術優勢，協助企業打造安全、可信且可治理的企業級 AI 平台？", "企業在導入生成式 AI 時，最擔心資料安全、治理與維運管理。Syscom Cubi 如何透過 Cisco 與 Splunk 的整合，協助企業兼顧 AI 效能、安全與治理？", "凌群電腦將如何持續攜手 Cisco，協助企業加速 AI 應用落地，打造更完整的 AI 基礎架構與智慧營運能力？"]}, {"id": "c04", "shortname": "華電聯網", "company": "華電聯網股份有限公司", "start": "10:55", "end": "11:10", "booth": "Cisco Connect Partner Booth", "interviewee": "待提供", "am": "", "reel": false, "exclusive": true, "highlights": [{"title": "以 AI 為核心的統一資安運營中心", "text": "AI & Security"}], "products": [{"label": "主題", "text": "以 AI 為核心的統一資安運營中心", "img": "", "caption": "", "shots": []}], "qa": ["華電及思科在無人機有哪些新的應用技術？", "華電投入綠色永續和５Ｇ車聯網最大的特色為何？", "抓準AI趨勢，華電聯網和思科如何共同建置AI基礎建設？"]}, {"id": "c05", "shortname": "聚誠", "company": "聚誠科技", "start": "11:10", "end": "11:25", "booth": "Cisco Connect Partner Booth", "interviewee": "6/29確定", "am": "", "reel": false, "exclusive": true, "highlights": [{"title": "Cisco 光通訊和網路解決方案", "text": "RON & Networking"}], "products": [{"label": "主題", "text": "Cisco 光通訊和網路解決方案", "img": "", "caption": "", "shots": []}], "qa": ["聚誠在系統整合的最大特色是甚麼？", "在資安防護領域當中的努力有哪些？", "抓準AI趨勢，聚誠和思科如何共同建置AI基礎建設？"]}, {"id": "c06", "shortname": "擎昊", "company": "擎昊科技", "start": "11:25", "end": "11:40", "booth": "Cisco Connect Partner Booth", "interviewee": "David", "am": "Bryan", "reel": true, "exclusive": true, "highlights": [{"title": "打造 AI 驅動的身份安全防護，落實 Zero Trust 架構", "text": "AI+Security — Cisco Identity Intelligence"}], "products": [{"label": "主題", "text": "打造 AI 驅動的身份安全防護\n落實 Zero Trust 架構", "img": "", "caption": "", "shots": []}], "qa": ["擎昊與 Cisco 如何結合 Cisco Identity Intelligence，協助企業打造 AI 驅動的身份安全防護？這套解決方案最大的特色與價值是什麼？", "隨著企業導入雲端與 AI 應用，身份管理成為資安的重要環節。這套解決方案如何協助企業即時發現高風險帳號、異常行為與過度授權，降低身份攻擊風險？", "AI 技術快速發展，也讓身份安全面臨更多新挑戰。未來擎昊將如何持續攜手 Cisco，協助企業深化 Zero Trust 架構，打造更智慧、更主動的身份安全防護機制？"]}, {"id": "c07", "shortname": "新立", "company": "新立科技", "start": "11:40", "end": "11:55", "booth": "Cisco Connect Partner Booth", "interviewee": "Travis Chiang", "am": "Travis Chiang", "reel": true, "exclusive": true, "highlights": [{"title": "Cisco Powered AIoT Data Platform", "text": "以 Cisco 基礎架構，打造安全可擴充的 AIoT 智慧平台"}], "products": [{"label": "主題", "text": "Cisco Powered AIoT Data Platform\n以 Cisco 基礎架構，打造安全可擴充的 AIoT 智慧平台", "img": "", "caption": "", "shots": []}], "qa": ["新立如何結合 Cisco AI 就緒基礎架構，打造兼具安全性、可擴充性與可維運性的 AIoT Data Platform？", "企業在推動智慧製造時，常面臨設備、資料與系統整合的挑戰。新立如何透過 Cisco Powered AIoT Data Platform，協助企業將資料真正轉化為 AI 驅動的營運成果？", "抓準AI趨勢，新立將如何持續攜手 Cisco，協助企業打造更完整、更安全且可持續擴充的 AIoT 智慧營運平台？"]}, {"id": "c08", "shortname": "零壹科技", "company": "零壹科技", "start": "12:00", "end": "12:15", "booth": "Cisco Connect Partner Booth", "interviewee": "Akira Chen", "am": "Derek Lin", "reel": true, "exclusive": true, "highlights": [{"title": "協助企業打造安全的資安智能維運平台", "text": "AI & Security — Full-Stack AIOps"}], "products": [{"label": "主題", "text": "協助企業打造安全的資安智能維運平台\nFull-Stack AIOps 製造業智能維運平台", "img": "", "caption": "", "shots": []}], "qa": ["零壹和思科共同合作，雙方如何整合彼此優勢，打造企業所需的一站式 IT 現代化與智慧維運解決方案？", "面對企業最關心的資安與維運挑戰，這次展示的 Full-Stack AIOps 平台如何透過 AI、數據整合與 Splunk 技術，協助企業更快速發現問題、提升維運效率？", "AI 已成為企業轉型的重要驅動力，未來零壹科技將如何攜手 Cisco，協助企業打造 AI Ready 的基礎架構與資安韌性？"]}, {"id": "c09", "shortname": "晉泰科技", "company": "晉泰科技", "start": "12:15", "end": "12:30", "booth": "Cisco Connect Partner Booth", "interviewee": "Grace Kuan", "am": "Jacob Huang", "reel": true, "exclusive": true, "highlights": [{"title": "AIoT智慧港灣/智慧製造", "text": "Networking + CAI"}], "products": [{"label": "主題", "text": "AIoT智慧港灣/智慧製造", "img": "", "caption": "", "shots": []}], "qa": ["雙方在高雄共同打造AIoT 永續創新研發中心，目前的成效如何？", "數位孿生技術近年來非常夯，晉泰做的努力有哪些？", "抓準AI趨勢，晉泰和思科如何共同建置AI基礎建設？"]}, {"id": "c10", "shortname": "中華電信", "company": "中華電信股份有限公司", "start": "12:30", "end": "12:45", "booth": "Cisco Connect Partner Booth", "interviewee": "Janet Tseng", "am": "Eva Yi", "reel": false, "exclusive": true, "highlights": [{"title": "新雲端守護方案", "text": "以租代買、代建代管，實現多據點企業的零負擔轉型"}], "products": [{"label": "主題", "text": "新雲端守護方案\n以租代買、代建代管，實現多據點企業的零負擔轉型", "img": "", "caption": "", "shots": []}], "qa": ["中華電信與 Cisco 長期合作推動企業數位轉型，這次展示的「雲端守護方案」有哪些特色？如何協助企業降低導入門檻？", "許多企業面臨多據點管理、人力不足及 IT 維運成本等挑戰，「雲端守護方案」如何透過代建、代管、代維運模式，協助企業更輕鬆完成數位轉型？", "中華電信將如何持續攜手 Cisco，協助企業打造更智慧、安全且具韌性的 IT 基礎架構？"]}, {"id": "c11", "shortname": "聯浚", "company": "聯浚科技", "start": "14:00", "end": "14:15", "booth": "Cisco Connect Partner Booth（下午）", "interviewee": "Steve Lu", "am": "Stephanie", "reel": false, "exclusive": true, "highlights": [{"title": "AI 驅動的智慧通訊新時代", "text": "智慧通訊 — 智慧醫療、雲端協作"}], "products": [{"label": "主題", "text": "AI 驅動的智慧通訊新時代", "img": "", "caption": "", "shots": []}], "qa": ["在智慧醫療的領域當中，雙方合作如何發揮效益？", "聯浚的技術在雲端協作平台如何整合運作？", "抓準AI趨勢，聯浚和思科如何共同建置AI基礎建設？"]}, {"id": "c12", "shortname": "邁達特", "company": "邁達特股份有限公司", "start": "14:15", "end": "14:30", "booth": "邁達特 + Cisco Booth（下午）", "interviewee": "李冠霆 Tony", "am": "Joe Huang", "reel": false, "exclusive": true, "highlights": [{"title": "智能網路驅動未來，AI資安守護核心", "text": "Cross Archi整合"}], "products": [{"label": "主題", "text": "智能網路驅動未來，AI資安守護核心", "img": "", "caption": "", "shots": []}], "qa": ["邁達特與 Cisco 長期合作推動企業數位轉型，本次展示整合 Cisco AI 智慧維運平台、AI 安全防護與全棧網路洞察，最大的特色與價值是什麼？", "邁達特如何透過 Cisco AI 技術，協助企業即時掌握網路狀態、降低資安風險並提升維運效率？", "未來邁達特將如何持續攜手 Cisco，透過 AI Networking 與 AI Security 的整合，協助企業打造更智慧、更安全且具韌性的數位基礎架構？"]}, {"id": "c13", "shortname": "NTT DATA", "company": "NTT DATA", "start": "14:30", "end": "14:45", "booth": "Cisco Booth（下午）", "interviewee": "待確認", "am": "", "reel": false, "exclusive": true, "highlights": [{"title": "AI / Future proof workplace / Security & 數位韌性", "text": "35年合作夥伴關係"}], "products": [{"label": "主題", "text": "AI / Future proof workplace / Security & 數位韌性\nNTT DATA × Cisco 35週年合作", "img": "", "caption": "", "shots": []}], "qa": ["NTT DATA 如何結合 Cisco 的技術，協助客戶解決實際的營運挑戰，並創造哪些具體效益？", "生成式 AI 正快速改變企業營運模式，未來 NTT DATA 將如何持續攜手 Cisco，協助企業打造 AI Ready 的數位基礎架構與智慧應用？", "35 年的合作一路走來，您認為 NTT DATA 與 Cisco 能夠持續攜手合作的原因是什麼？"]}];
+let chipState = { interview: true, reel: false };
+
+// ── LOCK ──
+if (sessionStorage.getItem('cpx_auth') === '1') {
+  document.getElementById('lock-screen').classList.add('hidden');
+  initApp();
+}
+window.checkPassword = function() {
+  const val = document.getElementById('lock-input').value;
+  if (val === PWD) {
+    sessionStorage.setItem('cpx_auth', '1');
+    document.getElementById('lock-screen').classList.add('hidden');
+    initApp();
+  } else {
+    document.getElementById('lock-error').textContent = '密碼錯誤，請再試一次';
+    document.getElementById('lock-input').value = '';
+    document.getElementById('lock-input').focus();
+  }
+};
+
+// ── LOADING ──
+function showLoading(t) { document.getElementById('loading').classList.remove('hidden'); document.getElementById('loading-text').textContent = t||'載入中...'; }
+function hideLoading() { document.getElementById('loading').classList.add('hidden'); }
+
+// ── INIT ──
+async function initApp() {
+  showLoading('連線資料庫...');
+  await loadData();
+  hideLoading();
+  document.getElementById('app').classList.add('active');
+  renderAll();
+}
+
+async function loadData() {
+  const ref = doc(db, 'expo-shooting', 'main');
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    const data = snap.data();
+    const isOldData = !data.version || data.version < 2;
+    if (isOldData) {
+      await seedCiscoData();
+      return;
+    }
+    dates = data.dates || [];
+    vendors = data.vendors || {};
+    currentQrUrl = data.qrUrl || '';
+  } else {
+    await seedCiscoData();
+    return;
+  }
+  if (!currentDateId || !dates.find(d => d.id === currentDateId)) {
+    currentDateId = dates[0]?.id || null;
+  }
+  setSyncBadge('synced');
+}
+
+async function seedCiscoData() {
+  dates = [{ id: 'd0', label: '7/7 (一)', host: '林思妤', camera1: 'Toby', camera2: '', post: '' }];
+  vendors = { d0: CISCO_VENDORS };
+  currentQrUrl = '';
+  await setDoc(doc(db, 'expo-shooting', 'main'), { dates, vendors, qrUrl: '', version: 2 });
+  if (!currentDateId) currentDateId = 'd0';
+  setSyncBadge('synced');
+}
+
+window.refreshData = async function() {
+  showLoading('重新載入...');
+  const prev = currentVendorId;
+  await loadData();
+  hideLoading();
+  renderAll();
+  if (prev) { currentVendorId = prev; renderPanel(); }
+};
+
+
+let _saveTimer = null;
+function saveData(immediate = false) {
+  setSyncBadge('syncing');
+  clearTimeout(_saveTimer);
+  if (immediate) {
+    return _doSave();
+  } else {
+    _saveTimer = setTimeout(_doSave, 1500);
+    return Promise.resolve();
+  }
+}
+async function _doSave() {
+  await setDoc(doc(db, 'expo-shooting', 'main'), { dates, vendors, qrUrl: currentQrUrl, version: 2 });
+  setSyncBadge('synced');
+}
+function setSyncBadge(s) {
+  const el = document.getElementById('sync-badge');
+  if (s === 'syncing') { el.textContent = '● 同步中'; el.className = 'sync-badge syncing'; }
+  else { el.textContent = '● 已同步'; el.className = 'sync-badge'; }
+}
+
+// ── CLOUDINARY ──
+async function uploadToCloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file); fd.append('upload_preset', UPLOAD_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+  const data = await res.json();
+  return data.secure_url;
+}
+
+// ── RENDER ──
+function renderAll() {
+  renderDateBar();
+  renderSidebar();
+}
+
+function renderDateBar() {
+  const bar = document.getElementById('date-bar');
+  bar.innerHTML = '';
+  dates.forEach(d => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;';
+    const tab = document.createElement('button');
+    tab.className = 'dbar-tab' + (d.id === currentDateId ? ' active' : '');
+    tab.textContent = d.label;
+    tab.onclick = () => { currentDateId = d.id; currentVendorId = null; renderAll(); clearPanel(); };
+    wrap.appendChild(tab);
+    if (d.id === currentDateId && dates.length > 1) {
+      const del = document.createElement('button');
+      del.className = 'dbar-del'; del.textContent = '✕';
+      del.onclick = () => { if (confirm(`確定刪除「${d.label}」所有資料？`)) { dates = dates.filter(x => x.id !== d.id); delete vendors[d.id]; currentDateId = dates[0]?.id||null; currentVendorId=null; saveData(true); clearPanel(); }};
+      wrap.appendChild(del);
+    }
+    bar.appendChild(wrap);
+    // Show crew info for active date
+    if (d.id === currentDateId) {
+      const crew = document.createElement('span');
+      crew.className = 'dbar-crew';
+      crew.innerHTML = `
+        🎤 HOST：<input value="${d.host||''}" placeholder="主持人" style="border:none;background:transparent;font-size:12px;color:#555;outline:none;width:64px;border-bottom:1px dashed #ccc;font-family:inherit;" onchange="updateDateCrew('${d.id}','host',this.value)">
+        　🎥 訪談攝影：<input value="${d.camera1||d.camera||''}" placeholder="攝影師" style="border:none;background:transparent;font-size:12px;color:#555;outline:none;width:64px;border-bottom:1px dashed #ccc;font-family:inherit;" onchange="updateDateCrew('${d.id}','camera1',this.value)">
+        　🎥 花絮攝影：<input value="${d.camera2||''}" placeholder="攝影師" style="border:none;background:transparent;font-size:12px;color:#555;outline:none;width:64px;border-bottom:1px dashed #ccc;font-family:inherit;" onchange="updateDateCrew('${d.id}','camera2',this.value)">
+        　🎬 後製：<input value="${d.post||''}" placeholder="後製人員" style="border:none;background:transparent;font-size:12px;color:#555;outline:none;width:64px;border-bottom:1px dashed #ccc;font-family:inherit;" onchange="updateDateCrew('${d.id}','post',this.value)">
+      `;
+      bar.appendChild(crew);
+    }
+  });
+}
+
+function renderSidebar() {
+  const list = document.getElementById('sidebar-list');
+  list.innerHTML = '';
+  const vlist = vendors[currentDateId] || [];
+  if (!vlist.length) {
+    list.innerHTML = '<div class="s-empty">📭 尚無拍攝項目<br>點右上方＋新增</div>';
+    return;
+  }
+  vlist.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 's-card' + (v.id === currentVendorId ? ' active' : '');
+    card.innerHTML = `
+      <div class="s-time"><div class="s-time-start">${v.start}</div><div class="s-time-end">${v.end}</div></div>
+      <div class="s-info">
+        <div class="s-name">${v.shortname}</div>
+        <div class="s-sub">${v.booth||''}${v.am ? ' ｜ '+v.am : ''}</div>
+        <div class="s-badges">
+          ${v.interview!==false ? '<span class="badge badge-interview">訪談</span>' : ''}
+          ${v.exclusive ? '<span class="badge badge-exclusive">專訪</span>' : ''}
+          ${v.reel ? '<span class="badge badge-reel">短影音</span>' : ''}
+        </div>
+      </div>
+      <button class="s-del-btn" onclick="event.stopPropagation();deleteVendor('${v.id}')" title="刪除">🗑</button>`;
+    card.onclick = () => { currentVendorId = v.id; renderAll(); renderPanel(); };
+    list.appendChild(card);
+  });
+}
+
+function clearPanel() {
+  document.getElementById('panel-empty').style.display = 'flex';
+  document.getElementById('panel-content').style.display = 'none';
+  currentVendorId = null;
+  renderAll();
+}
+
+function getVendor() {
+  return (vendors[currentDateId]||[]).find(x => x.id === currentVendorId);
+}
+
+function renderPanel() {
+  const v = getVendor(); if (!v) return;
+  document.getElementById('panel-empty').style.display = 'none';
+  document.getElementById('panel-content').style.display = 'block';
+  // Editable time
+  document.getElementById('ph-time').innerHTML =
+    `<input class="editable" style="font-size:15px;width:64px;" value="${v.start}" onchange="updateVendorField('start',this.value)"> – <input class="editable" style="font-size:15px;width:64px;" value="${v.end}" onchange="updateVendorField('end',this.value)">`;
+  // Editable name
+  document.getElementById('ph-name').innerHTML =
+    `<input class="editable" style="font-size:28px;font-weight:800;" value="${v.shortname}" onchange="updateVendorField('shortname',this.value)"><span class="edit-hint">點擊可編輯</span>`;
+  // Editable meta
+  document.getElementById('ph-meta').innerHTML = `
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-right:16px;">📍 <input class="editable" style="font-size:14px;width:180px;" value="${v.booth||''}" placeholder="攤位" onchange="updateVendorField('booth',this.value)"></span>
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;">🧑‍💼 受訪者：<input class="editable" id="meta-interviewee" style="font-size:14px;width:130px;" value="${v.interviewee||''}" placeholder="受訪者" onchange="updateVendorField('interviewee',this.value)"></span>
+    <span style="display:inline-flex;align-items:center;gap:4px;">👤 業務：<input class="editable" id="meta-am" style="font-size:14px;width:80px;" value="${v.am||''}" placeholder="業務" onchange="updateVendorField('am',this.value)"></span>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:2px;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:5px 12px;border-radius:5px;border:1.5px solid ${v.interview!==false?'var(--green)':'var(--border2)'};background:${v.interview!==false?'var(--green-bg)':'var(--bg4)'};color:${v.interview!==false?'var(--green)':'var(--text3)'};transition:all 0.15s;">
+        <input type="checkbox" ${v.interview!==false?'checked':''} onchange="updateVendorField('interview',this.checked)" style="accent-color:var(--green);"> 訪談
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:5px 12px;border-radius:5px;border:1.5px solid ${v.exclusive?'#7c3aed':'var(--border2)'};background:${v.exclusive?'#ede9fe':'var(--bg4)'};color:${v.exclusive?'#5b21b6':'var(--text3)'};transition:all 0.15s;">
+        <input type="checkbox" ${v.exclusive?'checked':''} onchange="updateVendorField('exclusive',this.checked)" style="accent-color:#7c3aed;"> 專訪
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:5px 12px;border-radius:5px;border:1.5px solid ${v.reel?'var(--amber)':'var(--border2)'};background:${v.reel?'var(--amber-bg)':'var(--bg4)'};color:${v.reel?'var(--amber)':'var(--text3)'};transition:all 0.15s;">
+        <input type="checkbox" ${v.reel?'checked':''} onchange="updateVendorField('reel',this.checked)" style="accent-color:var(--amber);"> 短影音
+      </label>
+    </div>`;
+  renderPTabInfo(v);
+  renderPTabHighlights(v);
+  renderPTabProducts(v);
+  renderPTabQA(v);
+  renderPTabPost(v);
+}
+
+window.updateVendorField = function(field, value) {
+  const v = getVendor(); if (!v) return;
+  v[field] = value;
+  if (field === 'shortname') renderSidebar();
+  if (field === 'start' || field === 'end') {
+    vendors[currentDateId].sort((a,b)=>a.start.localeCompare(b.start));
+    renderSidebar();
+  }
+  if (['interview','exclusive','reel'].includes(field)) {
+    renderSidebar();
+    renderPanel();
+  }
+  // Sync hero meta inputs without full re-render (prevents cursor jump)
+  if (field === 'am') {
+    const el = document.getElementById('meta-am');
+    if (el && el !== document.activeElement) el.value = value;
+  }
+  if (field === 'interviewee') {
+    const el = document.getElementById('meta-interviewee');
+    if (el && el !== document.activeElement) el.value = value;
+  }
+  // Also re-render info tab to sync
+  if (['booth','interviewee','am','notes'].includes(field)) {
+    renderPTabInfo(v);
+  }
+  saveData();
+};
+
+// ── TAB SWITCH ──
+const PTABS = ['info','highlights','products','qa','post'];
+window.switchPTab = function(name) {
+  PTABS.forEach((t,i) => {
+    document.getElementById('ptab-'+t).style.display = t===name ? 'block' : 'none';
+    document.querySelectorAll('.ptab')[i].classList.toggle('active', t===name);
+  });
+};
+
+// ── INFO TAB ──
+function renderPTabInfo(v) {
+  const floorImg = v.floorplan || '';
+  let html = `
+    <div class="pc-floorplan">
+      <div class="pc-floorplan-header">
+        <span>🗺 攤位平面圖</span>
+        <span style="font-size:11px;color:#bbb;">拖曳圖片或點擊上傳</span>
+      </div>`;
+  // Always show drop zone - works with or without existing image
+  html += `<div class="pc-floorplan-drop drop-zone" id="floorplan-drop"
+    ondragover="event.preventDefault();this.classList.add('drag-over')"
+    ondragleave="this.classList.remove('drag-over')"
+    ondrop="handleFloorplanDrop(event)"
+    onclick="triggerFloorplanInput()"
+    style="${floorImg ? 'padding:0;border:none;background:transparent;' : ''}">
+    ${floorImg
+      ? `<img src="${floorImg}" alt="平面圖" style="width:100%;display:block;border-radius:8px;">
+         <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.55);color:#fff;border-radius:8px;padding:5px 12px;font-size:12px;pointer-events:none;">🖼 拖曳或點擊更換</div>`
+      : `<div style="font-size:40px;color:#ccc;">🗺</div><p>拖曳圖片至此，或點擊選擇檔案上傳</p>`}
+  </div>`;
+  html += `</div>
+    <input type="file" id="floorplan-input" accept="image/*" style="display:none" onchange="handleFloorplanFile(event)">
+    <div class="pc-section">
+      <div class="pc-section-title">📍 拍攝資訊</div>
+      <div class="pc-card">
+        <div class="pc-row"><div class="pc-key">攤位</div><div class="pc-val"><input class="editable-dark" value="${v.booth||''}" placeholder="填寫攤位" onchange="updateVendorField('booth',this.value)"></div></div>
+        <div class="pc-row"><div class="pc-key">受訪者</div><div class="pc-val"><input class="editable-dark" value="${v.interviewee||''}" placeholder="填寫受訪者" onchange="updateVendorField('interviewee',this.value)"></div></div>
+        <div class="pc-row"><div class="pc-key">負責業務</div><div class="pc-val"><input class="editable-dark" value="${v.am||''}" placeholder="填寫業務" onchange="updateVendorField('am',this.value)"></div></div>
+        <div class="pc-row" style="align-items:flex-start;"><div class="pc-key" style="padding-top:8px;">備注</div><div class="pc-val">
+          <textarea
+            style="width:100%;border:none;background:transparent;font-family:inherit;font-size:14px;color:var(--text);outline:none;resize:none;line-height:1.6;min-height:36px;overflow:hidden;"
+            placeholder="自由填寫備注..."
+            oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';updateVendorField('notes',this.value)"
+            onchange="updateVendorField('notes',this.value)">${v.notes||''}</textarea>
+        </div></div>
+      </div>
+    </div>`;
+  document.getElementById('ptab-info').innerHTML = html;
+}
+
+window.triggerFloorplanInput = function() { document.getElementById('floorplan-input')?.click(); };
+window.handleFloorplanFile = async function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  showLoading('上傳平面圖...');
+  try { const url = await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.floorplan=url; await saveData(); renderPTabInfo(v); } catch { alert('上傳失敗'); }
+  hideLoading();
+};
+window.handleFloorplanDrop = async function(e) {
+  e.preventDefault();
+  const file = [...(e.dataTransfer.files||[])].find(f=>f.type.startsWith('image/')); if(!file) return;
+  showLoading('上傳平面圖...');
+  try { const url = await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.floorplan=url; await saveData(); renderPTabInfo(v); } catch { alert('上傳失敗'); }
+  hideLoading();
+};
+
+// ── HIGHLIGHTS TAB ──
+function renderPTabHighlights(v) {
+  const hl = v.highlights || [];
+  let html = '<div class="hl-list">';
+  if (!hl.length) html += '<div style="text-align:center;padding:40px;color:#ccc;">尚無展出亮點</div>';
+  hl.forEach((h,hi) => {
+    html += `<div class="pc-hl-card">
+      <div class="pc-hl-header">
+        <span>⭐ </span><input class="pc-hl-title-input" value="${h.title||''}" placeholder="亮點標題" onchange="updateHighlight(${hi},'title',this.value)">
+        <button class="pc-hl-del" onclick="deleteHighlight(${hi})">刪除</button>
+      </div>
+      <div style="padding:10px 16px 12px;">
+        <textarea rows="1"
+          style="width:100%;border:none;background:transparent;font-family:inherit;font-size:14px;color:var(--text2);outline:none;resize:none;line-height:1.6;overflow:hidden;min-height:0;display:block;"
+          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';updateHighlight(${hi},'text',this.value)"
+          onchange="updateHighlight(${hi},'text',this.value)">${h.text||''}</textarea>
+      </div></div>`;
+  });
+  html += `</div><br><button class="pc-add-btn" onclick="openModal('modal-highlight')">＋ 新增展出亮點</button>`;
+  document.getElementById('ptab-highlights').innerHTML = html;
+}
+window.deleteHighlight = async function(hi) {
+  const v=getVendor(); if(!v)return; v.highlights.splice(hi,1); await saveData(true); renderPTabHighlights(v);
+};
+window.updateHighlight = function(hi, field, value) {
+  const v=getVendor(); if(!v||!v.highlights[hi])return;
+  v.highlights[hi][field] = value; saveData();
+};
+window.confirmAddHighlight = async function() {
+  const v=getVendor(); if(!v)return;
+  const title=document.getElementById('hl-title').value.trim();
+  const text=document.getElementById('hl-text').value.trim();
+  if(!title&&!text)return;
+  if(!v.highlights)v.highlights=[];
+  v.highlights.push({title:title||'亮點',text});
+  closeModal('modal-highlight'); await saveData(true); renderPTabHighlights(v);
+};
+
+// ── PRODUCTS TAB ──
+function renderPTabProducts(v) {
+  let html = '<div class="products-grid">';
+  (v.products||[]).forEach((p,pi)=>{
+    const hasImg = !!p.img;
+    const shots = p.shots || [];
+    const shotCount = shots.length;
+    html += `<div class="pc-product">
+      <div class="pc-product-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <input class="pc-product-label-input" value="${p.label||''}" placeholder="字卡標題" onchange="updateProduct(${pi},'label',this.value)">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;font-family:'SF Mono',monospace;padding:2px 8px;border-radius:3px;cursor:pointer;
+            background:${shotCount>0?'var(--green-bg)':'var(--bg4)'};
+            color:${shotCount>0?'var(--green)':'var(--text3)'};
+            border:1px solid ${shotCount>0?'rgba(10,122,62,0.2)':'var(--border)'};
+            transition:all 0.15s;"
+            onclick="switchPTab('post')" title="前往後製截圖">
+            🎬 ${shotCount > 0 ? shotCount+'張截圖' : '無截圖'}
+          </span>
+          <button style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;" onclick="deleteProduct(${pi})">✕</button>
+        </div>
+      </div>
+      <div class="pc-product-img drop-zone" id="pzone-${pi}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleProductDrop(event,${pi})"
+        onclick="triggerProductFile(${pi},'gallery')">
+        ${hasImg
+          ? `<img src="${p.img}" alt="product">`
+          : `<div class="pc-product-drop-hint"><div style="font-size:36px;color:#ccc;">🖼</div><div style="font-size:12px;color:#aaa;margin-top:8px;">拖曳圖片至此<br>或點擊選擇檔案</div></div>`}
+        <div class="pc-img-overlay">
+          <button class="pc-img-btn" onclick="event.stopPropagation();triggerProductFile(${pi},'camera')">📷 拍照</button>
+          <button class="pc-img-btn" onclick="event.stopPropagation();triggerProductFile(${pi},'gallery')">🖼 選擇檔案</button>
+        </div>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="pimg-camera-${pi}" style="display:none" onchange="handleProductFile(event,${pi})">
+      <input type="file" accept="image/*" id="pimg-gallery-${pi}" style="display:none" onchange="handleProductFile(event,${pi})">
+      <div class="pc-product-caption">
+        <label>圖說</label>
+        <input type="text" value="${p.caption||''}" placeholder="輸入圖說..." id="pcap-${pi}"
+          oninput="document.getElementById('pcap-save-${pi}').style.display='inline-block'"
+          onblur="saveCaption(${pi})">
+        <button id="pcap-save-${pi}" onclick="saveCaption(${pi})">儲存</button>
+      </div>
+      ${shots.length > 0 ? `
+      <div style="padding:8px 14px 10px;border-top:1px solid var(--border);background:var(--bg3);">
+        <div style="font-size:11px;font-family:'SF Mono',monospace;color:var(--text3);letter-spacing:0.08em;margin-bottom:6px;">SHOTS · ${shots.length}張</div>
+        <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;">
+          ${shots.map((s,si)=>`
+            <div style="flex-shrink:0;position:relative;cursor:pointer;" onclick="window.open('${s.url}','_blank')" title="${s.filename||'截圖 '+(si+1)}">
+              <img src="${s.url}" style="width:72px;height:54px;object-fit:cover;border-radius:4px;border:1.5px solid var(--border);display:block;">
+              ${s.filename ? `<div style="font-size:9px;color:var(--text3);font-family:'SF Mono',monospace;margin-top:2px;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.filename}</div>` : ''}
+            </div>`).join('')}
+          <div style="flex-shrink:0;width:72px;height:54px;border:1.5px dashed var(--border2);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text3);background:var(--bg4);"
+            onclick="switchPTab('post')" title="前往後製頁新增">＋</div>
+        </div>
+      </div>` : `
+      <div style="padding:8px 14px 10px;border-top:1px solid var(--border);background:var(--bg3);">
+        <div style="font-size:11px;font-family:'SF Mono',monospace;color:var(--text3);letter-spacing:0.08em;margin-bottom:6px;">SHOTS · 無截圖</div>
+        <div style="border:1.5px dashed var(--border);border-radius:4px;padding:10px;text-align:center;cursor:pointer;font-size:12px;color:var(--text3);"
+          onclick="switchPTab('post')">🎬 前往後製頁上傳截圖</div>
+      </div>`}
+      <div style="padding:12px 16px;">
+        <textarea class="editable-area" style="width:100%;" rows="4" onchange="updateProduct(${pi},'text',this.value)">${p.text||''}</textarea>
+      </div>
+    </div>`;
+  });
+  html += `</div><br><button class="pc-add-btn" onclick="openModal('modal-product')">＋ 新增產品字卡</button>`;
+  document.getElementById('ptab-products').innerHTML = html;
+}
+window.triggerProductFile = function(pi,mode) { document.getElementById(`pimg-${mode}-${pi}`)?.click(); };
+window.handleProductFile = async function(e,pi) {
+  const file=e.target.files[0]; if(!file)return;
+  showLoading('上傳圖片...');
+  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].img=url; await saveData(); renderPTabProducts(v); } catch { alert('上傳失敗'); }
+  hideLoading();
+};
+window.handleProductDrop = async function(e,pi) {
+  e.preventDefault();
+  const file=[...(e.dataTransfer.files||[])].find(f=>f.type.startsWith('image/')); if(!file)return;
+  showLoading('上傳圖片...');
+  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].img=url; await saveData(); renderPTabProducts(v); } catch { alert('上傳失敗'); }
+  hideLoading();
+};
+window.saveCaption = async function(pi) {
+  const v=getVendor(); if(!v)return;
+  v.products[pi].caption=document.getElementById(`pcap-${pi}`).value;
+  const btn=document.getElementById(`pcap-save-${pi}`);
+  if(btn)btn.style.display='none';
+  saveData();
+};
+window.updateProduct = function(pi, field, value) {
+  const v=getVendor(); if(!v||!v.products[pi])return;
+  v.products[pi][field] = value; saveData();
+};
+window.deleteProduct = async function(pi) {
+  const v=getVendor(); if(!v)return;
+  if(!confirm('確定刪除這張產品字卡？'))return;
+  v.products.splice(pi,1); await saveData(true); renderPTabProducts(v);
+};
+window.confirmAddProduct = async function() {
+  const v=getVendor(); if(!v)return;
+  const label=document.getElementById('p-label').value.trim()||'產品字卡';
+  const text=document.getElementById('p-text').value.trim();
+  v.products.push({label,text,img:'',caption:''});
+  closeModal('modal-product'); await saveData(true); renderPTabProducts(v);
+};
+
+// ── QA TAB ──
+function renderPTabQA(v) {
+  const qa = v.qa || [];
+  const qaRef = v.qaRef || '';
+
+  // ── Reference file / URL section ──
+  let html = `<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:16px;box-shadow:0 1px 4px rgba(26,86,219,0.05);">
+    <div style="font-family:'SF Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;">📎 訪綱檔案 / 參考連結</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <input type="text" id="qa-ref-input" value="${qaRef}"
+        placeholder="貼上連結，或點右側上傳檔案..."
+        style="flex:1;min-width:200px;border:1.5px solid var(--border);border-radius:6px;padding:9px 12px;font-size:13px;font-family:inherit;color:var(--text);background:var(--bg3);outline:none;transition:border-color 0.15s;"
+        onfocus="this.style.borderColor='var(--accent)'"
+        onblur="this.style.borderColor='var(--border)'"
+        onchange="updateVendorField('qaRef',this.value)">
+      <label style="background:var(--bg4);border:1.5px solid var(--border2);border-radius:6px;padding:8px 14px;font-size:13px;color:var(--text2);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all 0.15s;"
+        onmouseover="this.style.background='var(--accent)';this.style.color='#fff';this.style.borderColor='var(--accent)'"
+        onmouseout="this.style.background='var(--bg4)';this.style.color='var(--text2)';this.style.borderColor='var(--border2)'">
+        📎 上傳檔案
+        <input type="file" id="qa-ref-file" style="display:none"
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.png,.jpg,.jpeg"
+          onchange="handleQARefUpload(event)">
+      </label>
+      ${qaRef ? `<a href="${qaRef}" target="_blank"
+        style="background:var(--accent);color:#fff;border-radius:6px;padding:9px 14px;font-size:13px;text-decoration:none;white-space:nowrap;font-weight:600;">
+        開啟 →</a>` : ''}
+    </div>
+    <div id="qa-ref-uploading" style="display:none;font-size:12px;color:var(--text3);margin-top:6px;">⏫ 上傳中...</div>
+  </div>`;
+
+  // ── QA list ──
+  html += '<div class="qa-list">';
+  if (!qa.length) html += '<div style="text-align:center;padding:32px;color:#ccc;">尚無訪問題目，點下方新增</div>';
+  qa.forEach((q,qi) => {
+    html += `<div class="pc-qa-item">
+      <div class="pc-qa-num">${qi+1}</div>
+      <textarea rows="1"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+        onblur="updateQA(${qi},this.value);this.style.borderBottomColor='transparent';this.style.background='transparent';this.style.padding='0'"
+        style="flex:1;border:none;background:transparent;font-family:inherit;color:var(--text);outline:none;resize:none;line-height:1.7;font-size:15px;border-bottom:1.5px dashed transparent;transition:border-color 0.15s;overflow:hidden;min-height:0;"
+        onmouseover="this.style.borderBottomColor='#aaa'"
+        onmouseout="if(document.activeElement!==this)this.style.borderBottomColor='transparent'"
+        onfocus="this.style.borderBottomColor='#0d1b2a';this.style.background='#f0f4ff';this.style.borderRadius='4px';this.style.padding='4px 6px'">${q}</textarea>
+      <button class="pc-qa-del" onclick="deleteQA(${qi})">✕</button>
+    </div>`;
+  });
+  html += `</div><br><button class="pc-add-btn" onclick="document.getElementById('qa-text').value='';openModal('modal-qa')">＋ 新增訪問題目</button>`;
+  document.getElementById('ptab-qa').innerHTML = html;
+  // Auto-resize all textareas after render
+  document.querySelectorAll('#ptab-qa textarea').forEach(ta => {
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+  });
+}
+window.confirmAddQA = async function() {
+  const v=getVendor(); if(!v)return;
+  const text=document.getElementById('qa-text').value.trim(); if(!text)return;
+  if(!v.qa)v.qa=[];
+  v.qa.push(text); closeModal('modal-qa'); await saveData(true); renderPTabQA(v);
+};
+
+// ── POST PRODUCTION TAB ──
+function renderPTabPost(v) {
+  const products = v.products || [];
+  if (!products.length) {
+    document.getElementById('ptab-post').innerHTML =
+      '<div class="panel-body"><div style="text-align:center;padding:48px;color:#ccc;">請先在「產品字卡」Tab 新增字卡</div></div>';
+    return;
+  }
+  let html = '<div class="panel-body" style="max-width:900px;">';
+
+  // Status summary bar
+  let totalShots = 0, totalProducts = products.length;
+  products.forEach(p => { totalShots += (p.shots||[]).length; });
+  html += `<div style="background:#fff;border-radius:14px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:24px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+    <div style="font-size:13px;color:#888;">📦 產品字卡：<strong style="color:#111;">${totalProducts} 張</strong></div>
+    <div style="font-size:13px;color:#888;">🎬 截圖素材：<strong style="color:#111;">${totalShots} 張</strong></div>
+    <div style="font-size:13px;color:${products.every(p=>(p.shots||[]).length>0)?'#0a6640':'#b45309'};">
+      ${products.every(p=>(p.shots||[]).length>0) ? '✅ 所有字卡均有素材' : '⚠️ 部分字卡缺少素材'}
+    </div>
+  </div>`;
+
+  products.forEach((p, pi) => {
+    const shots = p.shots || [];
+    const hasShots = shots.length > 0;
+    html += `<div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:16px;">
+      <div style="padding:13px 18px 11px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:11px;font-weight:600;color:#888;letter-spacing:0.08em;">${p.label||'字卡 '+pi}</span>
+          <span style="font-size:10px;padding:2px 8px;border-radius:99px;background:${hasShots?'#e0f5ec':'#fef0d8'};color:${hasShots?'#0a6640':'#7a4a00'};">
+            ${hasShots ? shots.length+'張截圖' : '尚無素材'}
+          </span>
+        </div>
+        <button class="post-add-btn" onclick="triggerShotUpload(${pi})">＋ 新增截圖</button>
+        <input type="file" accept="image/*" multiple id="shot-input-${pi}" style="display:none" onchange="handleShotUpload(event,${pi})">
+      </div>
+      <div class="post-section">`;
+
+    if (!hasShots) {
+      html += `<div class="post-empty drop-zone" id="shot-drop-${pi}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleShotDrop(event,${pi})"
+        onclick="triggerShotUpload(${pi})">
+        🎬 拖曳截圖至此，或點擊上傳<br>
+        <span style="font-size:10px;color:#ccc;margin-top:4px;display:block;">支援多張同時上傳</span>
+      </div>`;
+    } else {
+      html += `<div class="post-shots-grid" id="shot-grid-${pi}"
+        ondragover="event.preventDefault()"
+        ondrop="handleShotDrop(event,${pi})">`;
+      shots.forEach((s, si) => {
+        html += `<div class="post-shot">
+          <img class="post-shot-img" src="${s.url}" onclick="window.open('${s.url}','_blank')" title="點擊放大">
+          <div class="post-shot-footer">
+            <input class="post-shot-filename" value="${s.filename||''}" placeholder="檔名/備注"
+              onchange="updateShot(${pi},${si},'filename',this.value)">
+            <button class="post-shot-del" onclick="deleteShot(${pi},${si})">✕</button>
+          </div>
+        </div>`;
+      });
+      // Add new slot
+      html += `<div class="post-shot-drop drop-zone" id="shot-drop-${pi}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleShotDrop(event,${pi})"
+        onclick="triggerShotUpload(${pi})">＋ 新增</div>`;
+      html += `</div>`;
+    }
+
+    html += `</div></div>`;
+  });
+
+  html += '</div>';
+  document.getElementById('ptab-post').innerHTML = html;
+}
+
+window.triggerShotUpload = function(pi) {
+  document.getElementById('shot-input-'+pi)?.click();
+};
+
+window.handleShotUpload = async function(e, pi) {
+  const files = [...e.target.files]; if(!files.length) return;
+  showLoading('上傳截圖...');
+  try {
+    const v = getVendor(); if(!v) return;
+    if(!v.products[pi].shots) v.products[pi].shots = [];
+    for (const file of files) {
+      const url = await uploadToCloudinary(file);
+      v.products[pi].shots.push({ url, filename: file.name.replace(/\.[^.]+$/, '') });
+    }
+    await saveData(true);
+    renderPTabPost(v);
+    renderPTabProducts(v); // keep product card shot count in sync
+  } catch(err) { alert('上傳失敗：' + err.message); }
+  hideLoading();
+};
+
+window.handleShotDrop = async function(e, pi) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('shot-drop-'+pi)?.classList.remove('drag-over');
+  const files = [...(e.dataTransfer.files||[])].filter(f=>f.type.startsWith('image/'));
+  if(!files.length) return;
+  showLoading('上傳截圖...');
+  try {
+    const v = getVendor(); if(!v) return;
+    if(!v.products[pi].shots) v.products[pi].shots = [];
+    for (const file of files) {
+      const url = await uploadToCloudinary(file);
+      v.products[pi].shots.push({ url, filename: file.name.replace(/\.[^.]+$/, '') });
+    }
+    await saveData(true);
+    renderPTabPost(v);
+    renderPTabProducts(v); // keep product card shot count in sync
+  } catch(err) { alert('上傳失敗：' + err.message); }
+  hideLoading();
+};
+
+window.updateShot = function(pi, si, field, value) {
+  const v = getVendor(); if(!v) return;
+  if(!v.products[pi].shots[si]) return;
+  v.products[pi].shots[si][field] = value;
+  saveData();
+};
+
+window.deleteShot = async function(pi, si) {
+  const v = getVendor(); if(!v) return;
+  v.products[pi].shots.splice(si, 1);
+  await saveData(true);
+  renderPTabPost(v);
+  renderPTabProducts(v); // sync shot count on product card
+};
+window.deleteQA = async function(qi) {
+  const v=getVendor(); if(!v)return; v.qa.splice(qi,1); await saveData(true); renderPTabQA(v);
+};
+window.handleQARefUpload = async function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const v = getVendor(); if (!v) return;
+  const uploading = document.getElementById('qa-ref-uploading');
+  if (uploading) uploading.style.display = 'block';
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', 'DTstudio');
+    const res = await fetch('https://api.cloudinary.com/v1_1/dz7ark1gs/auto/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    const url = data.secure_url;
+    v.qaRef = url;
+    // Update input display
+    const input = document.getElementById('qa-ref-input');
+    if (input) input.value = url;
+    await saveData(true);
+    renderPTabQA(v);
+  } catch(err) { alert('上傳失敗：' + err.message); }
+  if (uploading) uploading.style.display = 'none';
+};
+
+window.updateQA = async function(qi, value) {
+  const v=getVendor(); if(!v||v.qa[qi]===undefined)return;
+  v.qa[qi]=value;
+  await saveData(true); // immediate save, not debounced
+};
+
+// ── ADD DATE ──
+window.confirmAddDate = async function() {
+  const val=document.getElementById('input-date').value; if(!val)return;
+  const [y,m,d]=val.split('-').map(Number);
+  const days=['日','一','二','三','四','五','六'];
+  const dow=new Date(y,m-1,d).getDay();
+  const label=`${m}/${d} (${days[dow]})`;
+  const host=document.getElementById('input-host').value.trim();
+  const camera1=document.getElementById('input-camera1').value.trim();
+  const camera2=document.getElementById('input-camera2').value.trim();
+  const post=document.getElementById('input-post').value.trim();
+  const id='d'+Date.now();
+  dates.push({id,label,host,camera1,camera2,post}); vendors[id]=[];
+  currentDateId=id; currentVendorId=null;
+  closeModal('modal-date'); await saveData(true); clearPanel();
+};
+
+// ── ADD VENDOR ──
+let chipState2 = { interview:true, exclusive:false, reel:false };
+window.toggleChip = function(name) {
+  chipState2[name]=!chipState2[name];
+  document.getElementById('chip-'+name).classList.toggle('selected',chipState2[name]);
+};
+window.openModal = function(id) {
+  if(id==='modal-vendor'){
+    chipState2={interview:true,exclusive:false,reel:false};
+    document.getElementById('chip-interview').classList.add('selected');
+    document.getElementById('chip-exclusive').classList.remove('selected');
+    document.getElementById('chip-reel').classList.remove('selected');
+    ['v-name','v-booth','v-interviewee','v-am'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('v-start').value=''; document.getElementById('v-end').value='';
+  }
+  document.getElementById(id).classList.add('open');
+};
+window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+document.querySelectorAll('.modal-backdrop').forEach(el=>{
+  el.addEventListener('click',function(e){ if(e.target===this)this.classList.remove('open'); });
+});
+window.confirmAddVendor = async function() {
+  const name=document.getElementById('v-name').value.trim(); if(!name)return;
+  const v={
+    id:'v'+Date.now(), shortname:name, company:name,
+    start:document.getElementById('v-start').value||'00:00',
+    end:document.getElementById('v-end').value||'00:00',
+    booth:document.getElementById('v-booth').value.trim(),
+    interviewee:document.getElementById('v-interviewee').value.trim(),
+    am:document.getElementById('v-am').value.trim(),
+    exclusive:chipState2.exclusive||false,
+    reel:chipState2.reel, products:[], qa:[]
+  };
+  if(!vendors[currentDateId])vendors[currentDateId]=[];
+  vendors[currentDateId].push(v);
+  vendors[currentDateId].sort((a,b)=>a.start.localeCompare(b.start));
+  closeModal('modal-vendor'); await saveData(true);
+};
+
+// Init default ptab
+switchPTab('info');
+
+// ── DELETE VENDOR ──
+window.deleteVendor = async function(vendorId) {
+  const v = (vendors[currentDateId]||[]).find(x => x.id === vendorId);
+  if (!v) return;
+  if (!confirm(`確定要刪除「${v.shortname}」？\n此操作無法復原。`)) return;
+  vendors[currentDateId] = vendors[currentDateId].filter(x => x.id !== vendorId);
+  if (currentVendorId === vendorId) clearPanel();
+  await saveData(true);
+  renderSidebar();
+};
+
+// ── DATE CREW EDIT ──
+window.updateDateCrew = function(dateId, field, value) {
+  const d = dates.find(x => x.id === dateId);
+  if (!d) return;
+  d[field] = value;
+  saveData();
+};
+
+// ── GLOBAL PASTE (Ctrl+V) for images ──
+document.addEventListener('paste', async function(e) {
+  const items = [...(e.clipboardData?.items || [])];
+  const imgItem = items.find(i => i.type.startsWith('image/'));
+  if (!imgItem) return;
+  const file = imgItem.getAsFile();
+  if (!file) return;
+
+  // Check which zone is "active" / hovered — try floorplan first, then products
+  const floorZone = document.getElementById('floorplan-drop');
+  const productZones = document.querySelectorAll('[id^="pzone-"]');
+
+  // Find which zone was last interacted with
+  const activeZone = document.querySelector('.drop-zone:hover') ||
+                     document.querySelector('.pc-floorplan-drop') ||
+                     null;
+
+  if (!activeZone) return;
+
+  if (activeZone.id === 'floorplan-drop' || activeZone.closest('#floorplan-drop')) {
+    showLoading('上傳平面圖...');
+    try {
+      const url = await uploadToCloudinary(file);
+      const v = getVendor(); if (!v) return;
+      v.floorplan = url; await saveData(true); renderPTabInfo(v);
+    } catch { alert('上傳失敗'); }
+    hideLoading();
+  } else {
+    const pzone = activeZone.closest('[id^="pzone-"]') || activeZone;
+    if (pzone && pzone.id && pzone.id.startsWith('pzone-')) {
+      const pi = parseInt(pzone.id.replace('pzone-', ''));
+      showLoading('上傳圖片...');
+      try {
+        const url = await uploadToCloudinary(file);
+        const v = getVendor(); if (!v) return;
+        v.products[pi].img = url; await saveData(true); renderPTabProducts(v);
+      } catch { alert('上傳失敗'); }
+      hideLoading();
+    }
+  }
+});
+
+// ── DRAG ENTER visual on body (show global drag state) ──
+let _dragCounter = 0;
+document.addEventListener('dragenter', () => { _dragCounter++; });
+document.addEventListener('dragleave', () => { _dragCounter--; });
+document.addEventListener('drop', () => { _dragCounter = 0; });
+</script>
+</body>
+</html>
