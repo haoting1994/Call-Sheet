@@ -146,38 +146,36 @@ html, body {
 }
 .topbar-btn:active { transform: translateY(0); }
 
-/* ── DATE BAR ── */
+/* ── DATE BAR (now inside sidebar) ── */
+.sidebar-dates-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 10px; border-bottom: 1.5px solid var(--border);
+  background: var(--bg3);
+}
 .date-bar {
-  background: #fff; border-bottom: 1.5px solid var(--border);
-  display: flex; align-items: center; padding: 0 24px; gap: 0;
-  flex-shrink: 0; overflow-x: auto;
+  display: flex; align-items: center; gap: 2px; flex: 1; min-width: 0;
+  overflow-x: auto;
 }
 .date-bar::-webkit-scrollbar { display: none; }
 .dbar-tab {
-  border: none; background: none; padding: 13px 18px;
-  font-size: 14px; font-weight: 500; color: var(--text3); cursor: pointer;
-  border-bottom: 2px solid transparent; white-space: nowrap;
-  transition: all 0.12s; font-family: inherit; letter-spacing: 0.03em;
+  border: none; background: none; padding: 7px 12px;
+  font-size: 13px; font-weight: 600; color: var(--text3); cursor: pointer;
+  border-radius: 6px; white-space: nowrap;
+  transition: all 0.12s; font-family: inherit; letter-spacing: 0.02em;
 }
-.dbar-tab.active { color: var(--text); border-bottom-color: var(--accent); }
-.dbar-tab:hover:not(.active) { color: var(--text2); }
-.dbar-crew {
-  font-size: 13px; color: var(--text3); padding: 0 16px;
-  border-left: 1px solid var(--border); margin-left: 8px; white-space: nowrap;
-  font-family: 'SF Mono', monospace;
-}
-.dbar-crew input {
-  background: transparent; border: none; color: var(--text2); font-family: 'SF Mono', monospace;
-  font-size: 13px; outline: none; width: 72px;
-  border-bottom: 1px solid transparent;
-}
-.dbar-crew input:hover { border-bottom-color: var(--border2); }
-.dbar-crew input:focus { border-bottom-color: var(--accent); color: var(--text); }
+.dbar-tab.active { color: #fff; background: var(--accent); }
+.dbar-tab:hover:not(.active) { color: var(--accent); background: rgba(26,86,219,0.08); }
 .dbar-del {
   border: none; background: none; color: var(--text3); font-size: 12px;
-  cursor: pointer; padding: 2px 4px; transition: color 0.12s;
+  cursor: pointer; padding: 2px 4px; transition: color 0.12s; flex-shrink: 0;
 }
 .dbar-del:hover { color: var(--red); }
+.sidebar-date-add {
+  background: var(--bg4); border: 1.5px solid var(--border2); border-radius: 6px;
+  color: var(--text2); width: 28px; height: 28px; flex-shrink: 0; cursor: pointer;
+  font-size: 15px; font-family: inherit; transition: all 0.15s;
+}
+.sidebar-date-add:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 /* ── LAYOUT ── */
 .main { display: flex; flex: 1; overflow: hidden; }
@@ -266,16 +264,47 @@ html, body {
 .panel-hero {
   background: #fff; border-bottom: 1.5px solid var(--border);
   border-top: 3px solid var(--accent);
-  padding: 20px 28px 18px;
+  padding: 14px 28px 10px;
   box-shadow: 0 2px 8px rgba(26,86,219,0.05);
 }
 .ph-time {
   font-family: 'SF Mono', monospace; font-size: 13px; color: var(--accent);
-  letter-spacing: 0.1em; margin-bottom: 6px;
+  letter-spacing: 0.1em; margin-bottom: 2px; line-height: 1.15;
 }
-.ph-name { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.ph-name { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; line-height: 1.1; }
+.ph-crew {
+  display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+  font-family: 'SF Mono', monospace; font-size: 13px; color: var(--text2);
+  margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); line-height: 1.2;
+}
+.ph-crew span { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.ph-crew input {
+  border: none; background: transparent; color: var(--text2); font-family: inherit;
+  font-size: 13px; outline: none; width: 66px;
+  border-bottom: 1px dashed transparent; transition: border-color 0.15s;
+}
+.ph-crew input:hover { border-bottom-color: var(--border2); }
+.ph-crew input:focus { border-bottom-color: var(--accent); color: var(--text); }
+.crew-chips { display: inline-flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.crew-chip {
+  display: inline-flex; align-items: center; gap: 4px; background: var(--bg4);
+  border: 1px solid var(--border2); border-radius: 4px; padding: 1px 4px 1px 8px;
+  font-family: inherit; font-size: 12px; color: var(--text2);
+}
+.crew-chip button {
+  border: none; background: none; color: var(--text3); font-size: 12px;
+  cursor: pointer; padding: 0 3px; line-height: 1;
+}
+.crew-chip button:hover { color: var(--red); }
+.crew-chip-add {
+  border: 1px dashed var(--border2); background: transparent; border-radius: 4px;
+  color: var(--text3); font-family: inherit; font-size: 12px; outline: none;
+  width: 78px; padding: 2px 6px;
+}
+.crew-chip-add:hover { border-color: var(--border2); color: var(--text2); }
+.crew-chip-add:focus { border-color: var(--accent); color: var(--text); background: rgba(59,130,246,0.06); }
 .ph-meta {
-  font-size: 12px; color: var(--text2); margin-top: 8px;
+  font-size: 12px; color: var(--text2); margin-top: 4px; line-height: 1.2;
   display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
 }
 .ph-meta span { display: flex; align-items: center; gap: 5px; }
@@ -296,7 +325,7 @@ html, body {
 .ptab:hover:not(.active) { color: var(--text2); }
 
 /* ── PANEL BODY ── */
-.panel-body { padding: 24px 28px; max-width: 960px; }
+.panel-body { padding: 14px 28px; max-width: 960px; }
 
 /* ── DATA ROWS ── */
 .pc-section { margin-bottom: 20px; }
@@ -368,18 +397,40 @@ html, body {
   font-family: 'SF Mono', monospace; font-size: 12px; font-weight: 600;
   color: var(--text3); letter-spacing: 0.08em;
 }
+.pc-product-subhead {
+  padding: 7px 16px 5px; font-family: 'SF Mono', monospace; font-size: 10.5px;
+  font-weight: 700; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase;
+  background: var(--bg4); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pc-product-subhead span.hint { font-weight: 400; letter-spacing: 0.02em; color: var(--text3); opacity: 0.85; text-transform: none; font-size: 10.5px; }
 .pc-product-img {
-  width: 100%; height: 200px; background: var(--bg3);
+  width: 100%; aspect-ratio: 16 / 5; background: var(--bg3);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; position: relative; overflow: hidden;
   border-bottom: 1px solid var(--border); transition: background 0.15s;
 }
 .pc-product-img:hover { background: #eef2ff; }
-.pc-product-img img { width: 100%; height: 100%; object-fit: cover; }
+.pc-product-img img { width: 100%; height: 100%; object-fit: contain; }
 .pc-product-img.drag-over { background: rgba(59,130,246,0.08); }
 .pc-product-drop-hint { text-align: center; }
-.pc-product-drop-hint div:first-child { font-size: 28px; color: var(--text3); opacity: 0.5; }
+.pc-product-drop-hint div:first-child { font-size: 24px; color: var(--text3); opacity: 0.5; }
 .pc-product-drop-hint div:last-child { font-size: 11px; color: var(--text3); margin-top: 6px; }
+.pc-product-photo {
+  width: 100%; aspect-ratio: 4 / 3; background: var(--bg3);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative; overflow: hidden;
+  border-bottom: 1px solid var(--border); transition: background 0.15s;
+}
+.pc-product-photo:hover { background: #eef2ff; }
+.pc-product-photo img { width: 100%; height: 100%; object-fit: cover; }
+.pc-product-photo.drag-over { background: rgba(59,130,246,0.08); }
+.pc-product-photo-tag {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  background: rgba(17,20,24,0.78); color: #fff; font-family: 'SF Mono', monospace;
+  font-size: 10px; letter-spacing: 0.05em; padding: 3px 9px; border-radius: 4px;
+  pointer-events: none;
+}
 .pc-img-overlay {
   position: absolute; bottom: 0; left: 0; right: 0;
   background: rgba(17,20,24,0.85); display: flex;
@@ -399,6 +450,13 @@ html, body {
 .pc-product-caption input:focus { color: var(--text); }
 .pc-product-caption button { background: var(--accent); border: none; border-radius: 3px; color: #fff; padding: 3px 8px; font-size: 10px; cursor: pointer; display: none; }
 .pc-product-text { padding: 12px 16px; font-size: 14px; color: var(--text2); line-height: 1.7; background: #fff; }
+.pc-shot-setphoto-btn {
+  position: absolute; bottom: 2px; left: 0; right: 0;
+  background: rgba(26,86,219,0.9); color: #fff; border: none;
+  font-size: 8.5px; font-family: 'SF Mono', monospace; letter-spacing: 0.02em;
+  padding: 2px 0; cursor: pointer; opacity: 0; transition: opacity 0.15s;
+}
+.pc-shot-wrap:hover .pc-shot-setphoto-btn { opacity: 1; }
 .pc-add-btn {
   background: transparent; border: 1.5px dashed var(--border2); border-radius: 6px; padding: 16px;
   text-align: center; cursor: pointer; font-size: 12px; color: var(--text3); width: 100%;
@@ -490,8 +548,9 @@ html, body {
 /* ── EDITABLE FIELDS ── */
 .editable {
   border: none; background: transparent; font-family: inherit;
-  color: inherit; outline: none; width: 100%;
+  color: inherit; outline: none; width: 100%; line-height: 1.2;
   border-bottom: 1px dashed transparent; transition: border-color 0.15s;
+  -webkit-appearance: none; appearance: none; display: inline-block; vertical-align: middle; margin: 0;
 }
 .editable:hover { border-bottom-color: rgba(255,255,255,0.15); }
 .editable:focus { border-bottom-color: var(--accent); background: rgba(59,130,246,0.06); border-radius: 3px; padding: 0 4px; }
@@ -528,37 +587,79 @@ html, body {
 .pc-hl-title-input:hover { border-bottom-color: var(--border2); }
 .pc-hl-title-input:focus { border-bottom-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); border-radius: 3px; padding: 0 4px; }
 .pc-product-label-input {
-  border: none; background: transparent; font-family: 'SF Mono', monospace;
-  color: var(--text3); outline: none; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-  width: calc(100% - 80px); border-bottom: 1px dashed transparent;
+  border: none; background: transparent; font-family: inherit;
+  color: var(--text); outline: none; font-size: 16px; font-weight: 700; letter-spacing: -0.01em;
+  width: calc(100% - 110px); border-bottom: 1px dashed transparent;
 }
 .pc-product-label-input:hover { border-bottom-color: var(--border2); }
-.pc-product-label-input:focus { border-bottom-color: var(--accent); background: rgba(59,130,246,0.06); border-radius: 3px; padding: 0 4px; color: var(--text2); }
+.pc-product-label-input:focus { border-bottom-color: var(--accent); background: rgba(59,130,246,0.06); border-radius: 3px; padding: 0 4px; }
 
 /* ── POST PRODUCTION ── */
-.post-section { border-top: 1.5px solid var(--border); padding: 12px 14px; background: var(--bg3); }
+.post-card-header-row {
+  min-height: 72px; padding: 10px 18px; border-bottom: 1px solid #f0f0f0;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.post-card-mini-thumb {
+  height: 58px; max-width: 200px; object-fit: contain; border-radius: 4px;
+  border: 1px solid var(--border); background: #fff; cursor: pointer;
+  flex-shrink: 0; transition: border-color 0.15s;
+}
+.post-card-mini-thumb:hover { border-color: var(--accent); }
+.post-card-mini-empty {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 68px; height: 58px; font-size: 18px; color: var(--text3);
+  background: var(--bg4); border-style: dashed; cursor: default;
+}
+.post-card-textcol {
+  flex: 1; min-width: 0; font-size: 13px; color: var(--text2); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; padding: 4px 12px; border-left: 1px dashed var(--border);
+}
+.post-card-textcol-empty { color: var(--text3); font-style: italic; }
+.post-section { border-top: 1.5px solid var(--border); padding: 16px; background: var(--bg3); }
 .post-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .post-section-title { font-family: 'SF Mono', monospace; font-size: 12px; font-weight: 600; color: var(--text3); letter-spacing: 0.12em; text-transform: uppercase; }
-.post-add-btn { background: var(--accent); border: none; border-radius: 4px; color: #fff; padding: 6px 12px; font-size: 13px; cursor: pointer; font-family: inherit; font-weight: 600; }
+.post-add-btn { background: var(--accent); border: none; border-radius: 4px; color: #fff; padding: 6px 12px; font-size: 13px; cursor: pointer; font-family: inherit; font-weight: 600; flex-shrink: 0; }
 .post-add-btn:hover { background: var(--accent2); }
-.post-shots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; }
-.post-shot { background: #fff; border-radius: 6px; overflow: hidden; border: 1.5px solid var(--border); transition: all 0.15s; box-shadow: 0 1px 3px rgba(26,86,219,0.05); }
+.post-shots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.post-shot { background: #fff; border-radius: 8px; overflow: hidden; border: 1.5px solid var(--border); transition: all 0.15s; box-shadow: 0 1px 3px rgba(26,86,219,0.05); }
 .post-shot:hover { border-color: var(--accent); box-shadow: 0 3px 10px rgba(26,86,219,0.12); transform: translateY(-1px); }
-.post-shot-img { width: 100%; height: 88px; object-fit: cover; background: var(--bg3); display: block; cursor: pointer; }
+.post-shot-img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--bg3); display: block; cursor: pointer; }
 .post-shot-drop {
-  width: 100%; height: 88px; background: var(--bg3);
+  width: 100%; aspect-ratio: 16 / 9; background: var(--bg3);
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 11px; color: var(--text3); text-align: center;
-  border: 1.5px dashed var(--border2); border-radius: 4px 4px 0 0; transition: all 0.15s;
+  cursor: pointer; font-size: 12px; color: var(--text3); text-align: center;
+  border: 1.5px dashed var(--border2); border-radius: 8px; transition: all 0.15s;
 }
 .post-shot-drop:hover, .post-shot-drop.drag-over { background: rgba(59,130,246,0.06); border-color: var(--accent); color: var(--accent); }
-.post-shot-footer { padding: 5px 8px; display: flex; align-items: center; gap: 4px; }
-.post-shot-filename {
-  flex: 1; border: none; background: transparent; font-size: 12px; font-family: 'SF Mono', monospace;
-  color: var(--text3); outline: none; min-width: 0; border-bottom: 1px dashed transparent;
+.post-shot-img-wrap { position: relative; }
+.post-shot-hero { border-color: var(--accent); border-width: 2px; }
+.post-shot-hero .post-shot-img { aspect-ratio: 4 / 3; }
+.post-shot-hero-tag {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  background: rgba(26,86,219,0.88); color: #fff; font-family: 'SF Mono', monospace;
+  font-size: 11px; letter-spacing: 0.03em; padding: 4px 10px; border-radius: 5px;
+  pointer-events: none;
 }
-.post-shot-filename:hover { border-bottom-color: var(--border2); }
-.post-shot-filename:focus { border-bottom-color: var(--accent); color: var(--text2); }
+.post-shot-usebtn {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(26,86,219,0.88); color: #fff; border: none;
+  font-size: 10px; font-family: inherit; padding: 4px 0; cursor: pointer;
+  opacity: 0; transition: opacity 0.15s;
+}
+.post-shot-img-wrap:hover .post-shot-usebtn { opacity: 1; }
+.post-shot-usebtn.is-set { opacity: 1; background: rgba(10,122,62,0.88); }
+.post-shot-fileno-row { padding: 6px 8px 2px; display: flex; align-items: center; gap: 5px; }
+.post-shot-fileno-row label { font-family: 'SF Mono', monospace; font-size: 9px; color: var(--text3); letter-spacing: 0.06em; flex-shrink: 0; }
+.post-shot-footer { padding: 2px 8px 6px; display: flex; align-items: center; gap: 4px; }
+.post-shot-filename {
+  flex: 1; border: none; background: var(--bg4); font-size: 12px; font-family: 'SF Mono', monospace;
+  color: var(--text2); outline: none; min-width: 0; border: 1px dashed var(--border);
+  border-radius: 4px; padding: 3px 6px;
+}
+.post-shot-filename:hover { border-color: var(--border2); }
+.post-shot-filename:focus { border-color: var(--accent); background: #fff; }
+.post-shot-filename::placeholder { color: var(--text3); }
 .post-shot-del { background: none; border: none; color: var(--text3); font-size: 12px; cursor: pointer; flex-shrink: 0; padding: 0; }
 .post-shot-del:hover { color: var(--red); }
 .post-empty {
@@ -642,23 +743,6 @@ button, .s-card, .pc-product, .dbar-tab, .ptab, .pc-add-btn, .post-empty { curso
 </head>
 <body>
 
-<!-- LOCK -->
-<div id="lock-screen">
-  <div class="lock-box">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-      <div class="lock-wordmark" style="margin-bottom:0;padding-right:0;margin-right:0;border-right:none;">CALL SHEET</div>
-      <img src="digitimes-logo.png" alt="DIGITIMES" style="height:18px;display:block;">
-    </div>
-    <div class="lock-title" style="font-size:32px;color:var(--text);font-weight:800;letter-spacing:-0.02em;margin-bottom:28px;">拍攝通告單</div>
-    <div class="lock-form">
-      <input type="password" id="lock-input" placeholder="請輸入密碼" autocomplete="off"
-        onkeydown="if(event.key==='Enter')checkPassword()">
-      <button class="lock-btn" onclick="checkPassword()">進入</button>
-      <div class="lock-error" id="lock-error"></div>
-    </div>
-  </div>
-</div>
-
 <!-- LOADING -->
 <div class="loading-overlay hidden" id="loading">
   <div class="spinner"></div>
@@ -675,17 +759,17 @@ button, .s-card, .pc-product, .dbar-tab, .ptab, .pc-add-btn, .post-empty { curso
     </div>
     <div class="topbar-right">
       <span class="sync-badge" id="sync-badge">● 同步中</span> <button onclick="refreshData()" style="background:rgba(255,255,255,0.12);border:none;border-radius:6px;color:#fff;padding:5px 12px;font-size:12px;cursor:pointer;" title="重新載入最新資料">🔄 刷新</button>
-      <button class="topbar-btn" onclick="openModal('modal-date')">＋ 新增日期</button>
     </div>
   </div>
-
-  <!-- DATE BAR -->
-  <div class="date-bar" id="date-bar"></div>
 
   <!-- MAIN -->
   <div class="main">
     <!-- SIDEBAR -->
     <div class="sidebar">
+      <div class="sidebar-dates-row">
+        <div class="date-bar" id="date-bar"></div>
+        <button class="sidebar-date-add" onclick="openModal('modal-date')" title="新增拍攝日期">＋</button>
+      </div>
       <div class="sidebar-header">
         <span class="sidebar-title">拍攝時程</span>
         <button class="sidebar-add-btn" onclick="openModal('modal-vendor')">＋ 新增</button>
@@ -704,6 +788,7 @@ button, .s-card, .pc-product, .dbar-tab, .ptab, .pc-add-btn, .post-empty { curso
           <div class="ph-time" id="ph-time"></div>
           <div class="ph-name" id="ph-name"></div>
           <div class="ph-meta" id="ph-meta"></div>
+          <div class="ph-crew" id="ph-crew"></div>
         </div>
         <div class="panel-tabs">
           <button class="ptab active" onclick="switchPTab('info')">📋 資訊</button>
@@ -730,14 +815,6 @@ button, .s-card, .pc-product, .dbar-tab, .ptab, .pc-add-btn, .post-empty { curso
     <div class="modal-title">新增拍攝日期</div>
     <label>日期</label>
     <input type="date" id="input-date">
-    <label>🎤 HOST（主持人）</label>
-    <input type="text" id="input-host" placeholder="例：林思妤">
-    <label>🎥 訪談攝影</label>
-    <input type="text" id="input-camera1" placeholder="例：Toby">
-    <label>🎥 花絮攝影</label>
-    <input type="text" id="input-camera2" placeholder="例：阿達">
-    <label>🎬 後製人員</label>
-    <input type="text" id="input-post" placeholder="例：小明">
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-date')">取消</button>
       <button class="btn-confirm" onclick="confirmAddDate()">新增</button>
@@ -766,6 +843,14 @@ button, .s-card, .pc-product, .dbar-tab, .ptab, .pc-add-btn, .post-empty { curso
       <button class="chip selected" id="chip-interview" onclick="toggleChip('interview')">訪談</button>
       <button class="chip" id="chip-exclusive" onclick="toggleChip('exclusive')">專訪</button>
       <button class="chip" id="chip-reel" onclick="toggleChip('reel')">短影音</button>
+    </div>
+    <label>拍攝團隊（同一天可不同組）</label>
+    <div class="modal-row">
+      <div><input type="text" id="v-host" placeholder="🎤 HOST"></div>
+      <div><input type="text" id="v-post" placeholder="🎬 後製人員"></div>
+    </div>
+    <div class="modal-row" style="margin-top:8px;">
+      <div style="flex:1;"><input type="text" id="v-cameras" placeholder="🎥 攝影（多位請用逗號分隔，例：Toby, 阿達）"></div>
     </div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-vendor')">取消</button>
@@ -834,29 +919,13 @@ const db = getFirestore(app);
 
 const CLOUD_NAME = 'dz7ark1gs';
 const UPLOAD_PRESET = 'DTstudio';
-const PWD = 'DT202607';
 
 let dates = [], vendors = {}, currentDateId = null, currentVendorId = null, currentQrUrl = '';
 const CISCO_VENDORS = [{"id": "c01", "shortname": "群環", "company": "群環科技", "start": "10:10", "end": "10:25", "booth": "Cisco Connect Partner Booth", "interviewee": "Rex", "am": "Willy Chen", "reel": false, "exclusive": true, "highlights": [{"title": "AI 極速網路時代：Wi-Fi 7 全面啟動", "text": "Cisco WiFi 7 × AI 極速傳輸，智能維運"}], "products": [{"label": "主題", "text": "AI 極速網路時代：Wi-Fi 7 全面啟動", "img": "", "caption": "", "shots": []}], "qa": ["群環與 Cisco 長期合作推動企業網路升級，這次展示的 Cisco Wi-Fi 7 最大的技術亮點是什麼？相較於過去的 Wi-Fi 世代，能為企業帶來哪些全新的價值？", "除了高速傳輸之外，群環如何結合 Cisco 的 AI Networking 技術，協助企業更有效率地管理無線網路並提升使用體驗？", "生成式 AI、智慧辦公與高密度應用快速發展，未來群環將如何持續攜手 Cisco，協助企業打造 AI Ready 的新世代網路環境？"]}, {"id": "c02", "shortname": "網達先進", "company": "網達先進科技", "start": "10:25", "end": "10:40", "booth": "Cisco Connect Partner Booth", "interviewee": "Paul Yang", "am": "Roger Loh", "reel": false, "exclusive": true, "highlights": [{"title": "Logicalis MXDR：實現「零信任」的未來", "text": "AI & Security"}], "products": [{"label": "主題", "text": "Logicalis MXDR：實現「零信任」的未來", "img": "", "caption": "", "shots": []}], "qa": ["網達與思科攜手推出 MXDR資安服務，與傳統資安防護相比，這項技術的特色為何？", "這次展出的 MXDR 如何整合 Cisco XDR、AI 分析與 SOC 服務，協助企業實現「從偵測到全面防禦」？", "抓準AI趨勢，網達和思科如何共同建置AI基礎建設？"]}, {"id": "c03", "shortname": "凌群電腦", "company": "凌群電腦股份有限公司", "start": "10:40", "end": "10:55", "booth": "Cisco Connect Partner Booth", "interviewee": "Ray Hsu", "am": "Ray Hsu", "reel": true, "exclusive": true, "highlights": [{"title": "迎接智慧電腦人的世代", "text": "UCS & Splunk — Syscom Cubi 整合"}], "products": [{"label": "主題", "text": "迎接智慧電腦人的世代\nSyscom Cubi + Cisco UCS + Splunk", "img": "", "caption": "", "shots": []}], "qa": ["凌羣和思科共同打造的劇院級沉浸式AI視訊會議體驗中心，目前的反饋如何？Syscom Cubi 如何結合 Cisco UCS 與 Splunk 的技術優勢，協助企業打造安全、可信且可治理的企業級 AI 平台？", "企業在導入生成式 AI 時，最擔心資料安全、治理與維運管理。Syscom Cubi 如何透過 Cisco 與 Splunk 的整合，協助企業兼顧 AI 效能、安全與治理？", "凌群電腦將如何持續攜手 Cisco，協助企業加速 AI 應用落地，打造更完整的 AI 基礎架構與智慧營運能力？"]}, {"id": "c04", "shortname": "華電聯網", "company": "華電聯網股份有限公司", "start": "10:55", "end": "11:10", "booth": "Cisco Connect Partner Booth", "interviewee": "待提供", "am": "", "reel": false, "exclusive": true, "highlights": [{"title": "以 AI 為核心的統一資安運營中心", "text": "AI & Security"}], "products": [{"label": "主題", "text": "以 AI 為核心的統一資安運營中心", "img": "", "caption": "", "shots": []}], "qa": ["華電及思科在無人機有哪些新的應用技術？", "華電投入綠色永續和５Ｇ車聯網最大的特色為何？", "抓準AI趨勢，華電聯網和思科如何共同建置AI基礎建設？"]}, {"id": "c05", "shortname": "聚誠", "company": "聚誠科技", "start": "11:10", "end": "11:25", "booth": "Cisco Connect Partner Booth", "interviewee": "6/29確定", "am": "", "reel": false, "exclusive": true, "highlights": [{"title": "Cisco 光通訊和網路解決方案", "text": "RON & Networking"}], "products": [{"label": "主題", "text": "Cisco 光通訊和網路解決方案", "img": "", "caption": "", "shots": []}], "qa": ["聚誠在系統整合的最大特色是甚麼？", "在資安防護領域當中的努力有哪些？", "抓準AI趨勢，聚誠和思科如何共同建置AI基礎建設？"]}, {"id": "c06", "shortname": "擎昊", "company": "擎昊科技", "start": "11:25", "end": "11:40", "booth": "Cisco Connect Partner Booth", "interviewee": "David", "am": "Bryan", "reel": true, "exclusive": true, "highlights": [{"title": "打造 AI 驅動的身份安全防護，落實 Zero Trust 架構", "text": "AI+Security — Cisco Identity Intelligence"}], "products": [{"label": "主題", "text": "打造 AI 驅動的身份安全防護\n落實 Zero Trust 架構", "img": "", "caption": "", "shots": []}], "qa": ["擎昊與 Cisco 如何結合 Cisco Identity Intelligence，協助企業打造 AI 驅動的身份安全防護？這套解決方案最大的特色與價值是什麼？", "隨著企業導入雲端與 AI 應用，身份管理成為資安的重要環節。這套解決方案如何協助企業即時發現高風險帳號、異常行為與過度授權，降低身份攻擊風險？", "AI 技術快速發展，也讓身份安全面臨更多新挑戰。未來擎昊將如何持續攜手 Cisco，協助企業深化 Zero Trust 架構，打造更智慧、更主動的身份安全防護機制？"]}, {"id": "c07", "shortname": "新立", "company": "新立科技", "start": "11:40", "end": "11:55", "booth": "Cisco Connect Partner Booth", "interviewee": "Travis Chiang", "am": "Travis Chiang", "reel": true, "exclusive": true, "highlights": [{"title": "Cisco Powered AIoT Data Platform", "text": "以 Cisco 基礎架構，打造安全可擴充的 AIoT 智慧平台"}], "products": [{"label": "主題", "text": "Cisco Powered AIoT Data Platform\n以 Cisco 基礎架構，打造安全可擴充的 AIoT 智慧平台", "img": "", "caption": "", "shots": []}], "qa": ["新立如何結合 Cisco AI 就緒基礎架構，打造兼具安全性、可擴充性與可維運性的 AIoT Data Platform？", "企業在推動智慧製造時，常面臨設備、資料與系統整合的挑戰。新立如何透過 Cisco Powered AIoT Data Platform，協助企業將資料真正轉化為 AI 驅動的營運成果？", "抓準AI趨勢，新立將如何持續攜手 Cisco，協助企業打造更完整、更安全且可持續擴充的 AIoT 智慧營運平台？"]}, {"id": "c08", "shortname": "零壹科技", "company": "零壹科技", "start": "12:00", "end": "12:15", "booth": "Cisco Connect Partner Booth", "interviewee": "Akira Chen", "am": "Derek Lin", "reel": true, "exclusive": true, "highlights": [{"title": "協助企業打造安全的資安智能維運平台", "text": "AI & Security — Full-Stack AIOps"}], "products": [{"label": "主題", "text": "協助企業打造安全的資安智能維運平台\nFull-Stack AIOps 製造業智能維運平台", "img": "", "caption": "", "shots": []}], "qa": ["零壹和思科共同合作，雙方如何整合彼此優勢，打造企業所需的一站式 IT 現代化與智慧維運解決方案？", "面對企業最關心的資安與維運挑戰，這次展示的 Full-Stack AIOps 平台如何透過 AI、數據整合與 Splunk 技術，協助企業更快速發現問題、提升維運效率？", "AI 已成為企業轉型的重要驅動力，未來零壹科技將如何攜手 Cisco，協助企業打造 AI Ready 的基礎架構與資安韌性？"]}, {"id": "c09", "shortname": "晉泰科技", "company": "晉泰科技", "start": "12:15", "end": "12:30", "booth": "Cisco Connect Partner Booth", "interviewee": "Grace Kuan", "am": "Jacob Huang", "reel": true, "exclusive": true, "highlights": [{"title": "AIoT智慧港灣/智慧製造", "text": "Networking + CAI"}], "products": [{"label": "主題", "text": "AIoT智慧港灣/智慧製造", "img": "", "caption": "", "shots": []}], "qa": ["雙方在高雄共同打造AIoT 永續創新研發中心，目前的成效如何？", "數位孿生技術近年來非常夯，晉泰做的努力有哪些？", "抓準AI趨勢，晉泰和思科如何共同建置AI基礎建設？"]}, {"id": "c10", "shortname": "中華電信", "company": "中華電信股份有限公司", "start": "12:30", "end": "12:45", "booth": "Cisco Connect Partner Booth", "interviewee": "Janet Tseng", "am": "Eva Yi", "reel": false, "exclusive": true, "highlights": [{"title": "新雲端守護方案", "text": "以租代買、代建代管，實現多據點企業的零負擔轉型"}], "products": [{"label": "主題", "text": "新雲端守護方案\n以租代買、代建代管，實現多據點企業的零負擔轉型", "img": "", "caption": "", "shots": []}], "qa": ["中華電信與 Cisco 長期合作推動企業數位轉型，這次展示的「雲端守護方案」有哪些特色？如何協助企業降低導入門檻？", "許多企業面臨多據點管理、人力不足及 IT 維運成本等挑戰，「雲端守護方案」如何透過代建、代管、代維運模式，協助企業更輕鬆完成數位轉型？", "中華電信將如何持續攜手 Cisco，協助企業打造更智慧、安全且具韌性的 IT 基礎架構？"]}, {"id": "c11", "shortname": "聯浚", "company": "聯浚科技", "start": "14:00", "end": "14:15", "booth": "Cisco Connect Partner Booth（下午）", "interviewee": "Steve Lu", "am": "Stephanie", "reel": false, "exclusive": true, "highlights": [{"title": "AI 驅動的智慧通訊新時代", "text": "智慧通訊 — 智慧醫療、雲端協作"}], "products": [{"label": "主題", "text": "AI 驅動的智慧通訊新時代", "img": "", "caption": "", "shots": []}], "qa": ["在智慧醫療的領域當中，雙方合作如何發揮效益？", "聯浚的技術在雲端協作平台如何整合運作？", "抓準AI趨勢，聯浚和思科如何共同建置AI基礎建設？"]}, {"id": "c12", "shortname": "邁達特", "company": "邁達特股份有限公司", "start": "14:15", "end": "14:30", "booth": "邁達特 + Cisco Booth（下午）", "interviewee": "李冠霆 Tony", "am": "Joe Huang", "reel": false, "exclusive": true, "highlights": [{"title": "智能網路驅動未來，AI資安守護核心", "text": "Cross Archi整合"}], "products": [{"label": "主題", "text": "智能網路驅動未來，AI資安守護核心", "img": "", "caption": "", "shots": []}], "qa": ["邁達特與 Cisco 長期合作推動企業數位轉型，本次展示整合 Cisco AI 智慧維運平台、AI 安全防護與全棧網路洞察，最大的特色與價值是什麼？", "邁達特如何透過 Cisco AI 技術，協助企業即時掌握網路狀態、降低資安風險並提升維運效率？", "未來邁達特將如何持續攜手 Cisco，透過 AI Networking 與 AI Security 的整合，協助企業打造更智慧、更安全且具韌性的數位基礎架構？"]}, {"id": "c13", "shortname": "NTT DATA", "company": "NTT DATA", "start": "14:30", "end": "14:45", "booth": "Cisco Booth（下午）", "interviewee": "待確認", "am": "", "reel": false, "exclusive": true, "highlights": [{"title": "AI / Future proof workplace / Security & 數位韌性", "text": "35年合作夥伴關係"}], "products": [{"label": "主題", "text": "AI / Future proof workplace / Security & 數位韌性\nNTT DATA × Cisco 35週年合作", "img": "", "caption": "", "shots": []}], "qa": ["NTT DATA 如何結合 Cisco 的技術，協助客戶解決實際的營運挑戰，並創造哪些具體效益？", "生成式 AI 正快速改變企業營運模式，未來 NTT DATA 將如何持續攜手 Cisco，協助企業打造 AI Ready 的數位基礎架構與智慧應用？", "35 年的合作一路走來，您認為 NTT DATA 與 Cisco 能夠持續攜手合作的原因是什麼？"]}];
 let chipState = { interview: true, reel: false };
 
-// ── LOCK ──
-if (sessionStorage.getItem('cpx_auth') === '1') {
-  document.getElementById('lock-screen').classList.add('hidden');
-  initApp();
-}
-window.checkPassword = function() {
-  const val = document.getElementById('lock-input').value;
-  if (val === PWD) {
-    sessionStorage.setItem('cpx_auth', '1');
-    document.getElementById('lock-screen').classList.add('hidden');
-    initApp();
-  } else {
-    document.getElementById('lock-error').textContent = '密碼錯誤，請再試一次';
-    document.getElementById('lock-input').value = '';
-    document.getElementById('lock-input').focus();
-  }
-};
+// ── INIT (no password gate) ──
+initApp();
 
 // ── LOADING ──
 function showLoading(t) { document.getElementById('loading').classList.remove('hidden'); document.getElementById('loading-text').textContent = t||'載入中...'; }
@@ -967,18 +1036,6 @@ function renderDateBar() {
       wrap.appendChild(del);
     }
     bar.appendChild(wrap);
-    // Show crew info for active date
-    if (d.id === currentDateId) {
-      const crew = document.createElement('span');
-      crew.className = 'dbar-crew';
-      crew.innerHTML = `
-        🎤 HOST：<input value="${d.host||''}" placeholder="主持人" style="border:none;background:transparent;font-size:12px;color:#555;outline:none;width:64px;border-bottom:1px dashed #ccc;font-family:inherit;" onchange="updateDateCrew('${d.id}','host',this.value)">
-        　🎥 訪談攝影：<input value="${d.camera1||d.camera||''}" placeholder="攝影師" style="border:none;background:transparent;font-size:12px;color:#555;outline:none;width:64px;border-bottom:1px dashed #ccc;font-family:inherit;" onchange="updateDateCrew('${d.id}','camera1',this.value)">
-        　🎥 花絮攝影：<input value="${d.camera2||''}" placeholder="攝影師" style="border:none;background:transparent;font-size:12px;color:#555;outline:none;width:64px;border-bottom:1px dashed #ccc;font-family:inherit;" onchange="updateDateCrew('${d.id}','camera2',this.value)">
-        　🎬 後製：<input value="${d.post||''}" placeholder="後製人員" style="border:none;background:transparent;font-size:12px;color:#555;outline:none;width:64px;border-bottom:1px dashed #ccc;font-family:inherit;" onchange="updateDateCrew('${d.id}','post',this.value)">
-      `;
-      bar.appendChild(crew);
-    }
   });
 }
 
@@ -1021,6 +1078,36 @@ function getVendor() {
   return (vendors[currentDateId]||[]).find(x => x.id === currentVendorId);
 }
 
+// ── CREW: HOST / 攝影 (flexible chip list) / 後製 ──
+function renderPhCrew(v) {
+  // Migrate legacy camera1/camera2 fixed fields into a flexible name list, once.
+  if (!v.cameraNames) {
+    v.cameraNames = [v.camera1, v.camera2].filter(x => x && x.trim());
+  }
+  const chips = v.cameraNames.map((name, ci) =>
+    `<span class="crew-chip">${name}<button onclick="removeCameraName(${ci})" title="移除">×</button></span>`
+  ).join('');
+  document.getElementById('ph-crew').innerHTML = `
+    <span>🎤 HOST：<input value="${v.host||''}" placeholder="主持人" onchange="updateVendorField('host',this.value)"></span>
+    <span>🎥 攝影：<span class="crew-chips">${chips}<input class="crew-chip-add" placeholder="+ 新增攝影" onkeydown="if(event.key==='Enter'){addCameraName(this.value);this.value='';}" onblur="if(this.value.trim()){addCameraName(this.value);this.value='';}"></span></span>
+    <span>🎬 後製：<input value="${v.post||''}" placeholder="後製人員" onchange="updateVendorField('post',this.value)"></span>
+  `;
+}
+window.addCameraName = async function(name) {
+  name = (name||'').trim(); if (!name) return;
+  const v = getVendor(); if (!v) return;
+  if (!v.cameraNames) v.cameraNames = [];
+  v.cameraNames.push(name);
+  await saveData(true);
+  renderPhCrew(v);
+};
+window.removeCameraName = async function(ci) {
+  const v = getVendor(); if (!v || !v.cameraNames) return;
+  v.cameraNames.splice(ci, 1);
+  await saveData(true);
+  renderPhCrew(v);
+};
+
 function renderPanel() {
   const v = getVendor(); if (!v) return;
   document.getElementById('panel-empty').style.display = 'none';
@@ -1031,12 +1118,14 @@ function renderPanel() {
   // Editable name
   document.getElementById('ph-name').innerHTML =
     `<input class="editable" style="font-size:28px;font-weight:800;" value="${v.shortname}" onchange="updateVendorField('shortname',this.value)"><span class="edit-hint">點擊可編輯</span>`;
-  // Editable meta
+  // Editable crew — separate row, below 受訪者 (per-project, same day can have different teams)
+  renderPhCrew(v);
+  // Editable meta (booth / interviewee / am + badges)
   document.getElementById('ph-meta').innerHTML = `
     <span style="display:inline-flex;align-items:center;gap:4px;margin-right:16px;">📍 <input class="editable" style="font-size:14px;width:180px;" value="${v.booth||''}" placeholder="攤位" onchange="updateVendorField('booth',this.value)"></span>
     <span style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;">🧑‍💼 受訪者：<input class="editable" id="meta-interviewee" style="font-size:14px;width:130px;" value="${v.interviewee||''}" placeholder="受訪者" onchange="updateVendorField('interviewee',this.value)"></span>
     <span style="display:inline-flex;align-items:center;gap:4px;">👤 業務：<input class="editable" id="meta-am" style="font-size:14px;width:80px;" value="${v.am||''}" placeholder="業務" onchange="updateVendorField('am',this.value)"></span>
-    <div style="display:flex;align-items:center;gap:12px;margin-top:2px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-top:8px;width:100%;">
       <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:5px 12px;border-radius:5px;border:1.5px solid ${v.interview!==false?'var(--green)':'var(--border2)'};background:${v.interview!==false?'var(--green-bg)':'var(--bg4)'};color:${v.interview!==false?'var(--green)':'var(--text3)'};transition:all 0.15s;">
         <input type="checkbox" ${v.interview!==false?'checked':''} onchange="updateVendorField('interview',this.checked)" style="accent-color:var(--green);"> 訪談
       </label>
@@ -1190,13 +1279,13 @@ function renderPTabProducts(v) {
   let html = '<div class="products-grid">';
   (v.products||[]).forEach((p,pi)=>{
     const hasImg = !!p.img;
-    const shots = p.shots || [];
-    const shotCount = shots.length;
+    const hasPhoto = !!p.photo;
+    const shotCount = (p.shots||[]).length;
     html += `<div class="pc-product">
       <div class="pc-product-header" style="display:flex;align-items:center;justify-content:space-between;">
         <input class="pc-product-label-input" value="${p.label||''}" placeholder="字卡標題" onchange="updateProduct(${pi},'label',this.value)">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:12px;font-family:'SF Mono',monospace;padding:2px 8px;border-radius:3px;cursor:pointer;
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <span style="font-size:12px;font-family:'SF Mono',monospace;padding:2px 8px;border-radius:3px;cursor:pointer;white-space:nowrap;
             background:${shotCount>0?'var(--green-bg)':'var(--bg4)'};
             color:${shotCount>0?'var(--green)':'var(--text3)'};
             border:1px solid ${shotCount>0?'rgba(10,122,62,0.2)':'var(--border)'};
@@ -1204,23 +1293,21 @@ function renderPTabProducts(v) {
             onclick="switchPTab('post')" title="前往後製截圖">
             🎬 ${shotCount > 0 ? shotCount+'張截圖' : '無截圖'}
           </span>
-          <button style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;" onclick="deleteProduct(${pi})">✕</button>
+          <button style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;flex-shrink:0;" onclick="deleteProduct(${pi})">✕</button>
         </div>
       </div>
-      <div class="pc-product-img drop-zone" id="pzone-${pi}"
+
+      <!-- 字卡圖片（產品字卡設計檔，較窄／不裁切） -->
+      <div class="pc-product-subhead"><span>🖼 產品字卡圖片</span></div>
+      <div class="pc-product-img drop-zone" id="pzone-card-${pi}"
         ondragover="event.preventDefault();this.classList.add('drag-over')"
         ondragleave="this.classList.remove('drag-over')"
         ondrop="handleProductDrop(event,${pi})"
         onclick="triggerProductFile(${pi},'gallery')">
         ${hasImg
-          ? `<img src="${p.img}" alt="product">`
-          : `<div class="pc-product-drop-hint"><div style="font-size:36px;color:#ccc;">🖼</div><div style="font-size:12px;color:#aaa;margin-top:8px;">拖曳圖片至此<br>或點擊選擇檔案</div></div>`}
-        <div class="pc-img-overlay">
-          <button class="pc-img-btn" onclick="event.stopPropagation();triggerProductFile(${pi},'camera')">📷 拍照</button>
-          <button class="pc-img-btn" onclick="event.stopPropagation();triggerProductFile(${pi},'gallery')">🖼 選擇檔案</button>
-        </div>
+          ? `<img src="${p.img}" alt="product card">`
+          : `<div class="pc-product-drop-hint"><div style="font-size:24px;color:#ccc;">🖼</div><div style="font-size:11px;color:#aaa;margin-top:6px;">拖曳字卡圖片</div></div>`}
       </div>
-      <input type="file" accept="image/*" capture="environment" id="pimg-camera-${pi}" style="display:none" onchange="handleProductFile(event,${pi})">
       <input type="file" accept="image/*" id="pimg-gallery-${pi}" style="display:none" onchange="handleProductFile(event,${pi})">
       <div class="pc-product-caption">
         <label>圖說</label>
@@ -1229,24 +1316,24 @@ function renderPTabProducts(v) {
           onblur="saveCaption(${pi})">
         <button id="pcap-save-${pi}" onclick="saveCaption(${pi})">儲存</button>
       </div>
-      ${shots.length > 0 ? `
-      <div style="padding:8px 14px 10px;border-top:1px solid var(--border);background:var(--bg3);">
-        <div style="font-size:11px;font-family:'SF Mono',monospace;color:var(--text3);letter-spacing:0.08em;margin-bottom:6px;">SHOTS · ${shots.length}張</div>
-        <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;">
-          ${shots.map((s,si)=>`
-            <div style="flex-shrink:0;position:relative;cursor:pointer;" onclick="window.open('${s.url}','_blank')" title="${s.filename||'截圖 '+(si+1)}">
-              <img src="${s.url}" style="width:72px;height:54px;object-fit:cover;border-radius:4px;border:1.5px solid var(--border);display:block;">
-              ${s.filename ? `<div style="font-size:9px;color:var(--text3);font-family:'SF Mono',monospace;margin-top:2px;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.filename}</div>` : ''}
-            </div>`).join('')}
-          <div style="flex-shrink:0;width:72px;height:54px;border:1.5px dashed var(--border2);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text3);background:var(--bg4);"
-            onclick="switchPTab('post')" title="前往後製頁新增">＋</div>
+
+      <!-- 展品實拍照 4:3（現場拍不到可用後製截圖代替，於「後製」Tab整合） -->
+      <div class="pc-product-photo drop-zone" id="pzone-photo-${pi}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleProductPhotoDrop(event,${pi})"
+        onclick="triggerProductPhotoFile(${pi},'gallery')">
+        ${hasPhoto
+          ? `<img src="${p.photo}" alt="product photo">${p.photoFileNo ? `<div class="pc-product-photo-tag">檔號 ${p.photoFileNo}</div>` : ''}`
+          : `<div class="pc-product-drop-hint"><div style="font-size:24px;color:#ccc;">📷</div><div style="font-size:11px;color:#aaa;margin-top:6px;">拖曳展品照至此，或點擊拍照／上傳</div></div>`}
+        <div class="pc-img-overlay">
+          <button class="pc-img-btn" onclick="event.stopPropagation();triggerProductPhotoFile(${pi},'camera')">📷 拍照</button>
+          <button class="pc-img-btn" onclick="event.stopPropagation();triggerProductPhotoFile(${pi},'gallery')">🖼 選擇檔案</button>
         </div>
-      </div>` : `
-      <div style="padding:8px 14px 10px;border-top:1px solid var(--border);background:var(--bg3);">
-        <div style="font-size:11px;font-family:'SF Mono',monospace;color:var(--text3);letter-spacing:0.08em;margin-bottom:6px;">SHOTS · 無截圖</div>
-        <div style="border:1.5px dashed var(--border);border-radius:4px;padding:10px;text-align:center;cursor:pointer;font-size:12px;color:var(--text3);"
-          onclick="switchPTab('post')">🎬 前往後製頁上傳截圖</div>
-      </div>`}
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="pphoto-camera-${pi}" style="display:none" onchange="handleProductPhotoFile(event,${pi})">
+      <input type="file" accept="image/*" id="pphoto-gallery-${pi}" style="display:none" onchange="handleProductPhotoFile(event,${pi})">
+
       <div style="padding:12px 16px;">
         <textarea class="editable-area" style="width:100%;" rows="4" onchange="updateProduct(${pi},'text',this.value)">${p.text||''}</textarea>
       </div>
@@ -1256,17 +1343,40 @@ function renderPTabProducts(v) {
   document.getElementById('ptab-products').innerHTML = html;
 }
 window.triggerProductFile = function(pi,mode) { document.getElementById(`pimg-${mode}-${pi}`)?.click(); };
+window.triggerProductPhotoFile = function(pi,mode) { document.getElementById(`pphoto-${mode}-${pi}`)?.click(); };
+window.handleProductPhotoFile = async function(e,pi) {
+  const file=e.target.files[0]; if(!file)return;
+  showLoading('上傳展品照...');
+  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].photo=url; v.products[pi].photoFileNo=''; await saveData(); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
+  hideLoading();
+};
+window.handleProductPhotoDrop = async function(e,pi) {
+  e.preventDefault();
+  const file=[...(e.dataTransfer.files||[])].find(f=>f.type.startsWith('image/')); if(!file)return;
+  showLoading('上傳展品照...');
+  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].photo=url; v.products[pi].photoFileNo=''; await saveData(); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
+  hideLoading();
+};
+window.setAsProductPhoto = async function(pi,si) {
+  const v=getVendor(); if(!v)return;
+  const shot = v.products[pi].shots?.[si]; if(!shot)return;
+  v.products[pi].photo = shot.url;
+  v.products[pi].photoFileNo = shot.filename||'';
+  await saveData(true);
+  renderPTabProducts(v);
+  renderPTabPost(v);
+};
 window.handleProductFile = async function(e,pi) {
   const file=e.target.files[0]; if(!file)return;
   showLoading('上傳圖片...');
-  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].img=url; await saveData(); renderPTabProducts(v); } catch { alert('上傳失敗'); }
+  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].img=url; await saveData(); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
   hideLoading();
 };
 window.handleProductDrop = async function(e,pi) {
   e.preventDefault();
   const file=[...(e.dataTransfer.files||[])].find(f=>f.type.startsWith('image/')); if(!file)return;
   showLoading('上傳圖片...');
-  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].img=url; await saveData(); renderPTabProducts(v); } catch { alert('上傳失敗'); }
+  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].img=url; await saveData(); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
   hideLoading();
 };
 window.saveCaption = async function(pi) {
@@ -1279,18 +1389,19 @@ window.saveCaption = async function(pi) {
 window.updateProduct = function(pi, field, value) {
   const v=getVendor(); if(!v||!v.products[pi])return;
   v.products[pi][field] = value; saveData();
+  if (field === 'text' || field === 'label') renderPTabPost(v);
 };
 window.deleteProduct = async function(pi) {
   const v=getVendor(); if(!v)return;
   if(!confirm('確定刪除這張產品字卡？'))return;
-  v.products.splice(pi,1); await saveData(true); renderPTabProducts(v);
+  v.products.splice(pi,1); await saveData(true); renderPTabProducts(v); renderPTabPost(v);
 };
 window.confirmAddProduct = async function() {
   const v=getVendor(); if(!v)return;
   const label=document.getElementById('p-label').value.trim()||'產品字卡';
   const text=document.getElementById('p-text').value.trim();
   v.products.push({label,text,img:'',caption:''});
-  closeModal('modal-product'); await saveData(true); renderPTabProducts(v);
+  closeModal('modal-product'); await saveData(true); renderPTabProducts(v); renderPTabPost(v);
 };
 
 // ── QA TAB ──
@@ -1362,27 +1473,22 @@ function renderPTabPost(v) {
       '<div class="panel-body"><div style="text-align:center;padding:48px;color:#ccc;">請先在「產品字卡」Tab 新增字卡</div></div>';
     return;
   }
-  let html = '<div class="panel-body" style="max-width:900px;">';
-
-  // Status summary bar
-  let totalShots = 0, totalProducts = products.length;
-  products.forEach(p => { totalShots += (p.shots||[]).length; });
-  html += `<div style="background:#fff;border-radius:14px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:24px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
-    <div style="font-size:13px;color:#888;">📦 產品字卡：<strong style="color:#111;">${totalProducts} 張</strong></div>
-    <div style="font-size:13px;color:#888;">🎬 截圖素材：<strong style="color:#111;">${totalShots} 張</strong></div>
-    <div style="font-size:13px;color:${products.every(p=>(p.shots||[]).length>0)?'#0a6640':'#b45309'};">
-      ${products.every(p=>(p.shots||[]).length>0) ? '✅ 所有字卡均有素材' : '⚠️ 部分字卡缺少素材'}
-    </div>
-  </div>`;
+  let html = '<div class="panel-body" style="max-width:1120px;">';
 
   products.forEach((p, pi) => {
     const shots = p.shots || [];
     const hasShots = shots.length > 0;
+    const hasPhoto = !!p.photo;
+    const hasContent = hasShots || hasPhoto;
     html += `<div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:16px;">
-      <div style="padding:13px 18px 11px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:11px;font-weight:600;color:#888;letter-spacing:0.08em;">${p.label||'字卡 '+pi}</span>
-          <span style="font-size:10px;padding:2px 8px;border-radius:99px;background:${hasShots?'#e0f5ec':'#fef0d8'};color:${hasShots?'#0a6640':'#7a4a00'};">
+      <div class="post-card-header-row">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+          <span style="font-size:11px;font-weight:600;color:#888;letter-spacing:0.08em;flex-shrink:0;">${p.label||'字卡 '+pi}</span>
+          ${p.img
+            ? `<img src="${p.img}" class="post-card-mini-thumb" onclick="window.open('${p.img}','_blank')" title="字卡圖片">`
+            : `<span class="post-card-mini-thumb post-card-mini-empty" title="尚未上傳字卡圖片">🖼</span>`}
+          <div class="post-card-textcol" title="${(p.text||'').replace(/"/g,'&quot;')}">${p.text ? p.text.replace(/\n/g,'　') : '<span class="post-card-textcol-empty">尚未填寫產品說明文字</span>'}</div>
+          <span style="font-size:10px;padding:2px 8px;border-radius:99px;flex-shrink:0;background:${hasShots?'#e0f5ec':'#fef0d8'};color:${hasShots?'#0a6640':'#7a4a00'};">
             ${hasShots ? shots.length+'張截圖' : '尚無素材'}
           </span>
         </div>
@@ -1391,7 +1497,7 @@ function renderPTabPost(v) {
       </div>
       <div class="post-section">`;
 
-    if (!hasShots) {
+    if (!hasContent) {
       html += `<div class="post-empty drop-zone" id="shot-drop-${pi}"
         ondragover="event.preventDefault();this.classList.add('drag-over')"
         ondragleave="this.classList.remove('drag-over')"
@@ -1404,11 +1510,25 @@ function renderPTabPost(v) {
       html += `<div class="post-shots-grid" id="shot-grid-${pi}"
         ondragover="event.preventDefault()"
         ondrop="handleShotDrop(event,${pi})">`;
+      // Pin 展品實拍照 as the first, highlighted hero tile — this IS the primary reference image
+      if (hasPhoto) {
+        html += `<div class="post-shot post-shot-hero">
+          <div class="post-shot-img-wrap">
+            <img class="post-shot-img" src="${p.photo}" onclick="window.open('${p.photo}','_blank')" title="展品實拍照">
+            <div class="post-shot-hero-tag">📷 展品實拍照${p.photoFileNo ? ` · 檔號 ${p.photoFileNo}` : ''}</div>
+          </div>
+        </div>`;
+      }
       shots.forEach((s, si) => {
+        const isPhoto = p.photo === s.url;
         html += `<div class="post-shot">
-          <img class="post-shot-img" src="${s.url}" onclick="window.open('${s.url}','_blank')" title="點擊放大">
-          <div class="post-shot-footer">
-            <input class="post-shot-filename" value="${s.filename||''}" placeholder="檔名/備注"
+          <div class="post-shot-img-wrap">
+            <img class="post-shot-img" src="${s.url}" onclick="window.open('${s.url}','_blank')" title="點擊放大">
+            <button class="post-shot-usebtn${isPhoto?' is-set':''}" onclick="setAsProductPhoto(${pi},${si})">${isPhoto?'✓ 已設為展品照':'設為展品照'}</button>
+          </div>
+          <div class="post-shot-fileno-row">
+            <label>檔號</label>
+            <input class="post-shot-filename" value="${s.filename||''}" placeholder="例：ACAM456"
               onchange="updateShot(${pi},${si},'filename',this.value)">
             <button class="post-shot-del" onclick="deleteShot(${pi},${si})">✕</button>
           </div>
@@ -1474,13 +1594,21 @@ window.handleShotDrop = async function(e, pi) {
 
 window.updateShot = function(pi, si, field, value) {
   const v = getVendor(); if(!v) return;
-  if(!v.products[pi].shots[si]) return;
-  v.products[pi].shots[si][field] = value;
+  const shot = v.products[pi].shots[si]; if(!shot) return;
+  shot[field] = value;
+  if (field === 'filename' && v.products[pi].photo === shot.url) {
+    v.products[pi].photoFileNo = value;
+  }
   saveData();
 };
 
 window.deleteShot = async function(pi, si) {
   const v = getVendor(); if(!v) return;
+  const shot = v.products[pi].shots[si];
+  if (shot && v.products[pi].photo === shot.url) {
+    v.products[pi].photo = '';
+    v.products[pi].photoFileNo = '';
+  }
   v.products[pi].shots.splice(si, 1);
   await saveData(true);
   renderPTabPost(v);
@@ -1524,12 +1652,8 @@ window.confirmAddDate = async function() {
   const days=['日','一','二','三','四','五','六'];
   const dow=new Date(y,m-1,d).getDay();
   const label=`${m}/${d} (${days[dow]})`;
-  const host=document.getElementById('input-host').value.trim();
-  const camera1=document.getElementById('input-camera1').value.trim();
-  const camera2=document.getElementById('input-camera2').value.trim();
-  const post=document.getElementById('input-post').value.trim();
   const id='d'+Date.now();
-  dates.push({id,label,host,camera1,camera2,post}); vendors[id]=[];
+  dates.push({id,label}); vendors[id]=[];
   currentDateId=id; currentVendorId=null;
   closeModal('modal-date'); await saveData(true); clearPanel();
 };
@@ -1546,7 +1670,7 @@ window.openModal = function(id) {
     document.getElementById('chip-interview').classList.add('selected');
     document.getElementById('chip-exclusive').classList.remove('selected');
     document.getElementById('chip-reel').classList.remove('selected');
-    ['v-name','v-booth','v-interviewee','v-am'].forEach(x=>document.getElementById(x).value='');
+    ['v-name','v-booth','v-interviewee','v-am','v-host','v-cameras','v-post'].forEach(x=>document.getElementById(x).value='');
     document.getElementById('v-start').value=''; document.getElementById('v-end').value='';
   }
   document.getElementById(id).classList.add('open');
@@ -1557,6 +1681,7 @@ document.querySelectorAll('.modal-backdrop').forEach(el=>{
 });
 window.confirmAddVendor = async function() {
   const name=document.getElementById('v-name').value.trim(); if(!name)return;
+  const cameraNames = document.getElementById('v-cameras').value.split(/[,，、]/).map(s=>s.trim()).filter(Boolean);
   const v={
     id:'v'+Date.now(), shortname:name, company:name,
     start:document.getElementById('v-start').value||'00:00',
@@ -1564,6 +1689,9 @@ window.confirmAddVendor = async function() {
     booth:document.getElementById('v-booth').value.trim(),
     interviewee:document.getElementById('v-interviewee').value.trim(),
     am:document.getElementById('v-am').value.trim(),
+    host:document.getElementById('v-host').value.trim(),
+    cameraNames:cameraNames,
+    post:document.getElementById('v-post').value.trim(),
     exclusive:chipState2.exclusive||false,
     reel:chipState2.reel, products:[], qa:[]
   };
@@ -1585,14 +1713,6 @@ window.deleteVendor = async function(vendorId) {
   if (currentVendorId === vendorId) clearPanel();
   await saveData(true);
   renderSidebar();
-};
-
-// ── DATE CREW EDIT ──
-window.updateDateCrew = function(dateId, field, value) {
-  const d = dates.find(x => x.id === dateId);
-  if (!d) return;
-  d[field] = value;
-  saveData();
 };
 
 // ── GLOBAL PASTE (Ctrl+V) for images ──
@@ -1624,13 +1744,22 @@ document.addEventListener('paste', async function(e) {
     hideLoading();
   } else {
     const pzone = activeZone.closest('[id^="pzone-"]') || activeZone;
-    if (pzone && pzone.id && pzone.id.startsWith('pzone-')) {
-      const pi = parseInt(pzone.id.replace('pzone-', ''));
-      showLoading('上傳圖片...');
+    if (pzone && pzone.id && pzone.id.startsWith('pzone-card-')) {
+      const pi = parseInt(pzone.id.replace('pzone-card-', ''));
+      showLoading('上傳字卡圖片...');
       try {
         const url = await uploadToCloudinary(file);
         const v = getVendor(); if (!v) return;
         v.products[pi].img = url; await saveData(true); renderPTabProducts(v);
+      } catch { alert('上傳失敗'); }
+      hideLoading();
+    } else if (pzone && pzone.id && pzone.id.startsWith('pzone-photo-')) {
+      const pi = parseInt(pzone.id.replace('pzone-photo-', ''));
+      showLoading('上傳展品照...');
+      try {
+        const url = await uploadToCloudinary(file);
+        const v = getVendor(); if (!v) return;
+        v.products[pi].photo = url; v.products[pi].photoFileNo = ''; await saveData(true); renderPTabProducts(v);
       } catch { alert('上傳失敗'); }
       hideLoading();
     }
