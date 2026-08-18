@@ -289,10 +289,22 @@ html, body {
 .highlight-text { font-size: 14px; color: var(--text2); line-height: 1.7; white-space: pre-wrap; }
 .highlight-add-btn { width: 100%; background: var(--bg3); border: 1.5px dashed var(--border); border-radius: 10px; padding: 14px; font-size: 14px; color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-/* PRODUCT IMG actions */
-.img-actions { position: absolute; bottom: 0; left: 0; right: 0; display: flex; }
+/* PRODUCT IMG actions — hidden by default, revealed on tap (mobile has no hover) */
+.img-actions {
+  position: absolute; bottom: 0; left: 0; right: 0; display: flex;
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+}
+.product-img-zone.show-actions .img-actions { opacity: 1; pointer-events: auto; }
 .img-action-btn { flex: 1; background: rgba(26,86,219,0.75); border: none; color: #fff; padding: 10px 0; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
 .img-action-btn:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.2); }
+.img-tap-hint {
+  position: absolute; top: 6px; right: 6px; z-index: 2;
+  background: rgba(17,20,24,0.55); color: #fff; font-size: 11px;
+  padding: 4px 8px; border-radius: 12px; pointer-events: none;
+  transition: opacity 0.15s;
+}
+.product-img-zone.show-actions .img-tap-hint { opacity: 0; }
+.product-img-zone:not(.has-img) .img-tap-hint { display: none; }
 
 /* CAPTION */
 .product-caption-wrap { padding: 7px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; background: var(--bg3); }
@@ -1187,12 +1199,13 @@ function renderProductsTab(v) {
         <div class="product-card-top">
           <span class="product-card-title">${p.label}</span>
         </div>
-        <div class="product-img-zone" id="pzone-${pi}"
+        <div class="product-img-zone${hasImg?' has-img':' show-actions'}" id="pzone-${pi}"
+          onclick="toggleImgActions(this,event)"
           ondragover="event.preventDefault();this.classList.add('drag-over')"
           ondragleave="this.classList.remove('drag-over')"
           ondrop="handleProductImgDrop(event,${pi})">
           ${hasImg
-            ? `<img src="${p.img}" alt="product"/>`
+            ? `<img src="${p.img}" alt="product"/><span class="img-tap-hint">輕觸更換圖片</span>`
             : `<div class="img-placeholder"><div class="img-placeholder-icon">🖼</div><div class="img-placeholder-text">拖曳、上傳或拍攝產品圖片</div></div>`}
           <div class="img-actions">
             <button class="img-action-btn" onclick="triggerProductImg(${pi},'camera')">📷 拍照</button>
@@ -1244,6 +1257,11 @@ window.switchTab = function(name) {
 };
 
 // ── PRODUCT IMG ──
+window.toggleImgActions = function(zone, ev) {
+  if (ev.target.closest('.img-action-btn')) return; // let the button's own click handle itself
+  document.querySelectorAll('.product-img-zone.show-actions').forEach(z => { if (z !== zone) z.classList.remove('show-actions'); });
+  zone.classList.toggle('show-actions');
+};
 window.triggerProductImg = function(pi, mode) {
   const id = mode === 'camera' ? 'pimg-camera-'+pi : 'pimg-gallery-'+pi;
   document.getElementById(id).click();
