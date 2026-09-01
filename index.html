@@ -197,20 +197,19 @@ html, body {
 #detail { background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .detail-nav {
   background: var(--bg2); border-bottom: 1.5px solid var(--border);
-  padding: max(env(safe-area-inset-top), 48px) 16px 12px;
+  padding: max(env(safe-area-inset-top), 32px) 16px 10px;
   display: flex; align-items: center; gap: 12px;
   flex-shrink: 0; position: sticky; top: 0; z-index: 10;
   box-shadow: 0 1px 4px rgba(26,86,219,0.06);
 }
 .back-btn {
-  width: 36px; height: 36px; background: var(--bg4); border: 1.5px solid var(--border);
-  border-radius: 50%; color: var(--text2); font-size: 20px;
+  width: 28px; height: 28px; background: var(--bg4); border: 1.5px solid var(--border);
+  border-radius: 50%; color: var(--text2); font-size: 16px;
   display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
   transition: all 0.15s;
 }
 .back-btn:active { background: var(--accent); color: #fff; border-color: var(--accent); }
-.detail-nav-title { font-size: 16px; font-weight: 700; color: var(--text); }
-.detail-nav-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.detail-nav-sub { font-size: 12px; font-weight: 600; color: var(--text3); letter-spacing: 0.02em; }
 
 .detail-hero {
   background: var(--bg2); border-bottom: 1.5px solid var(--border);
@@ -219,7 +218,6 @@ html, body {
 }
 .detail-time-text { font-size: 11px; color: var(--accent); margin-bottom: 4px; font-family: 'SF Mono', monospace; letter-spacing: 0.06em; }
 .detail-vendor-big { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
-.detail-company-text { font-size: 12px; color: var(--text3); margin-top: 4px; }
 
 /* TAB BAR */
 .tab-bar {
@@ -378,15 +376,11 @@ html, body {
 <div class="screen" id="detail">
   <div class="detail-nav">
     <button class="back-btn" onclick="showHome()">‹</button>
-    <div>
-      <div class="detail-nav-title" id="d-nav-title"></div>
-      <div class="detail-nav-sub">廠商資料卡</div>
-    </div>
+    <div class="detail-nav-sub">廠商資料卡</div>
   </div>
   <div class="detail-hero">
     <div class="detail-time-text" id="d-time"></div>
     <div class="detail-vendor-big" id="d-name"></div>
-    <div class="detail-company-text" id="d-company"></div>
   </div>
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('info')">📋 資訊</button>
@@ -1134,10 +1128,8 @@ window.showDetail = function(dateId, vendorId) {
   const v = (vendors[dateId] || []).find(x => x.id === vendorId);
   if (!v) return;
   currentDetail = { dateId, vendorId };
-  document.getElementById('d-nav-title').textContent = v.shortname;
   document.getElementById('d-time').textContent = v.start + ' – ' + v.end;
   document.getElementById('d-name').textContent = v.shortname;
-  document.getElementById('d-company').textContent = v.company;
   renderInfoTab(v);
   renderHighlightsTab(v);
   renderProductsTab(v);
