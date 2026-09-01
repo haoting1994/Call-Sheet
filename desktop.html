@@ -245,15 +245,15 @@ html, body {
 .s-empty { text-align: center; padding: 48px 16px; color: var(--text3); font-size: 12px; line-height: 1.8; }
 .s-editseq {
   width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-  background: rgba(26,86,219,0.5); box-shadow: 0 2px 6px rgba(26,86,219,0.35), inset 0 1px 1px rgba(255,255,255,0.3);
+  background: rgba(26,86,219,0.85); box-shadow: 0 2px 6px rgba(26,86,219,0.4), inset 0 1px 1px rgba(255,255,255,0.35);
   color: #fff; text-align: center; border: none; outline: none;
-  font-family: 'SF Mono', monospace; font-weight: 700; font-size: 13px;
+  font-family: 'SF Mono', monospace; font-weight: 700; font-size: 14px;
   transition: background 0.15s, box-shadow 0.15s; cursor: text;
   padding: 0; -webkit-appearance: none; appearance: none;
 }
-.s-editseq::placeholder { color: rgba(255,255,255,0.6); }
-.s-editseq:hover { background: rgba(26,86,219,0.75); box-shadow: 0 2px 8px rgba(26,86,219,0.45), inset 0 1px 1px rgba(255,255,255,0.3); }
-.s-editseq:focus { background: var(--accent); box-shadow: 0 2px 10px rgba(26,86,219,0.55), inset 0 1px 1px rgba(255,255,255,0.3); }
+.s-editseq::placeholder { color: rgba(255,255,255,0.75); }
+.s-editseq:hover { background: rgba(15,64,168,0.95); box-shadow: 0 2px 8px rgba(26,86,219,0.55), inset 0 1px 1px rgba(255,255,255,0.35); }
+.s-editseq:focus { background: var(--accent); box-shadow: 0 0 0 2px rgba(26,86,219,0.25), 0 2px 10px rgba(26,86,219,0.6), inset 0 1px 1px rgba(255,255,255,0.35); }
 .s-del-btn { background: none; border: none; font-size: 14px; cursor: pointer; opacity: 0; padding: 4px; border-radius: 4px; flex-shrink: 0; transition: opacity 0.15s, background 0.15s; }
 .s-card:hover .s-del-btn { opacity: 0.5; }
 .s-del-btn:hover { opacity: 1 !important; background: var(--red-bg); }
