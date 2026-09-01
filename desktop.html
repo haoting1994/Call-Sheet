@@ -182,7 +182,7 @@ html, body {
 
 /* ── SIDEBAR ── */
 .sidebar {
-  width: 280px; flex-shrink: 0; background: #fff;
+  width: 322px; flex-shrink: 0; background: #fff;
   border-right: 1.5px solid var(--border);
   display: flex; flex-direction: column; overflow: hidden;
 }
@@ -243,6 +243,17 @@ html, body {
 .badge-reel { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(146,96,10,0.2); }
 .badge-exclusive { background: #ede9fe; color: #5b21b6; border: 1px solid rgba(91,33,182,0.2); }
 .s-empty { text-align: center; padding: 48px 16px; color: var(--text3); font-size: 12px; line-height: 1.8; }
+.s-editseq {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(26,86,219,0.5); box-shadow: 0 2px 6px rgba(26,86,219,0.35), inset 0 1px 1px rgba(255,255,255,0.3);
+  color: #fff; text-align: center; border: none; outline: none;
+  font-family: 'SF Mono', monospace; font-weight: 700; font-size: 13px;
+  transition: background 0.15s, box-shadow 0.15s; cursor: text;
+  padding: 0; -webkit-appearance: none; appearance: none;
+}
+.s-editseq::placeholder { color: rgba(255,255,255,0.6); }
+.s-editseq:hover { background: rgba(26,86,219,0.75); box-shadow: 0 2px 8px rgba(26,86,219,0.45), inset 0 1px 1px rgba(255,255,255,0.3); }
+.s-editseq:focus { background: var(--accent); box-shadow: 0 2px 10px rgba(26,86,219,0.55), inset 0 1px 1px rgba(255,255,255,0.3); }
 .s-del-btn { background: none; border: none; font-size: 14px; cursor: pointer; opacity: 0; padding: 4px; border-radius: 4px; flex-shrink: 0; transition: opacity 0.15s, background 0.15s; }
 .s-card:hover .s-del-btn { opacity: 0.5; }
 .s-del-btn:hover { opacity: 1 !important; background: var(--red-bg); }
@@ -1061,6 +1072,10 @@ function renderSidebar() {
           ${v.reel ? '<span class="badge badge-reel">短影音</span>' : ''}
         </div>
       </div>
+      <input type="text" class="s-editseq" inputmode="numeric" maxlength="2" value="${v.editSeq||''}" placeholder="-" title="剪輯順序"
+        onclick="event.stopPropagation()"
+        onkeydown="if(event.key==='Enter')this.blur()"
+        onchange="updateVendorSeq('${v.id}',this.value)">
       <button class="s-del-btn" onclick="event.stopPropagation();deleteVendor('${v.id}')" title="刪除">🗑</button>`;
     card.onclick = () => { currentVendorId = v.id; renderAll(); renderPanel(); };
     list.appendChild(card);
@@ -1168,7 +1183,7 @@ window.updateVendorField = function(field, value) {
   if (['booth','interviewee','am','notes'].includes(field)) {
     renderPTabInfo(v);
   }
-  saveData();
+  saveData(true);
 };
 
 // ── TAB SWITCH ──
@@ -1225,14 +1240,14 @@ window.triggerFloorplanInput = function() { document.getElementById('floorplan-i
 window.handleFloorplanFile = async function(e) {
   const file = e.target.files[0]; if (!file) return;
   showLoading('上傳平面圖...');
-  try { const url = await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.floorplan=url; await saveData(); renderPTabInfo(v); } catch { alert('上傳失敗'); }
+  try { const url = await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.floorplan=url; await saveData(true); renderPTabInfo(v); } catch { alert('上傳失敗'); }
   hideLoading();
 };
 window.handleFloorplanDrop = async function(e) {
   e.preventDefault();
   const file = [...(e.dataTransfer.files||[])].find(f=>f.type.startsWith('image/')); if(!file) return;
   showLoading('上傳平面圖...');
-  try { const url = await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.floorplan=url; await saveData(); renderPTabInfo(v); } catch { alert('上傳失敗'); }
+  try { const url = await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.floorplan=url; await saveData(true); renderPTabInfo(v); } catch { alert('上傳失敗'); }
   hideLoading();
 };
 
@@ -1262,7 +1277,7 @@ window.deleteHighlight = async function(hi) {
 };
 window.updateHighlight = function(hi, field, value) {
   const v=getVendor(); if(!v||!v.highlights[hi])return;
-  v.highlights[hi][field] = value; saveData();
+  v.highlights[hi][field] = value; saveData(true);
 };
 window.confirmAddHighlight = async function() {
   const v=getVendor(); if(!v)return;
@@ -1347,14 +1362,14 @@ window.triggerProductPhotoFile = function(pi,mode) { document.getElementById(`pp
 window.handleProductPhotoFile = async function(e,pi) {
   const file=e.target.files[0]; if(!file)return;
   showLoading('上傳展品照...');
-  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].photo=url; v.products[pi].photoFileNo=''; await saveData(); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
+  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].photo=url; v.products[pi].photoFileNo=''; await saveData(true); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
   hideLoading();
 };
 window.handleProductPhotoDrop = async function(e,pi) {
   e.preventDefault();
   const file=[...(e.dataTransfer.files||[])].find(f=>f.type.startsWith('image/')); if(!file)return;
   showLoading('上傳展品照...');
-  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].photo=url; v.products[pi].photoFileNo=''; await saveData(); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
+  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].photo=url; v.products[pi].photoFileNo=''; await saveData(true); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
   hideLoading();
 };
 window.setAsProductPhoto = async function(pi,si) {
@@ -1369,14 +1384,14 @@ window.setAsProductPhoto = async function(pi,si) {
 window.handleProductFile = async function(e,pi) {
   const file=e.target.files[0]; if(!file)return;
   showLoading('上傳圖片...');
-  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].img=url; await saveData(); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
+  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].img=url; await saveData(true); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
   hideLoading();
 };
 window.handleProductDrop = async function(e,pi) {
   e.preventDefault();
   const file=[...(e.dataTransfer.files||[])].find(f=>f.type.startsWith('image/')); if(!file)return;
   showLoading('上傳圖片...');
-  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].img=url; await saveData(); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
+  try { const url=await uploadToCloudinary(file); const v=getVendor(); if(!v)return; v.products[pi].img=url; await saveData(true); renderPTabProducts(v); renderPTabPost(v); } catch { alert('上傳失敗'); }
   hideLoading();
 };
 window.saveCaption = async function(pi) {
@@ -1384,11 +1399,11 @@ window.saveCaption = async function(pi) {
   v.products[pi].caption=document.getElementById(`pcap-${pi}`).value;
   const btn=document.getElementById(`pcap-save-${pi}`);
   if(btn)btn.style.display='none';
-  saveData();
+  saveData(true);
 };
 window.updateProduct = function(pi, field, value) {
   const v=getVendor(); if(!v||!v.products[pi])return;
-  v.products[pi][field] = value; saveData();
+  v.products[pi][field] = value; saveData(true);
   if (field === 'text' || field === 'label') renderPTabPost(v);
 };
 window.deleteProduct = async function(pi) {
@@ -1599,7 +1614,7 @@ window.updateShot = function(pi, si, field, value) {
   if (field === 'filename' && v.products[pi].photo === shot.url) {
     v.products[pi].photoFileNo = value;
   }
-  saveData();
+  saveData(true);
 };
 
 window.deleteShot = async function(pi, si) {
@@ -1713,6 +1728,12 @@ window.deleteVendor = async function(vendorId) {
   if (currentVendorId === vendorId) clearPanel();
   await saveData(true);
   renderSidebar();
+};
+window.updateVendorSeq = async function(vendorId, value) {
+  const v = (vendors[currentDateId]||[]).find(x => x.id === vendorId);
+  if (!v) return;
+  v.editSeq = value.trim();
+  await saveData(true);
 };
 
 // ── GLOBAL PASTE (Ctrl+V) for images ──
