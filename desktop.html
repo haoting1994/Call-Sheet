@@ -416,13 +416,13 @@ html, body {
 }
 .pc-product-subhead span.hint { font-weight: 400; letter-spacing: 0.02em; color: var(--text3); opacity: 0.85; text-transform: none; font-size: 10.5px; }
 .pc-product-img {
-  width: 100%; aspect-ratio: 16 / 5; background: var(--bg3);
+  width: 100%; aspect-ratio: 4 / 3; background: var(--bg3);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; position: relative; overflow: hidden;
   border-bottom: 1px solid var(--border); transition: background 0.15s;
 }
 .pc-product-img:hover { background: #eef2ff; }
-.pc-product-img img { width: 100%; height: 100%; object-fit: contain; }
+.pc-product-img img { width: 100%; height: 100%; object-fit: cover; }
 .pc-product-img.drag-over { background: rgba(59,130,246,0.08); }
 .pc-product-drop-hint { text-align: center; }
 .pc-product-drop-hint div:first-child { font-size: 24px; color: var(--text3); opacity: 0.5; }
@@ -474,6 +474,26 @@ html, body {
   transition: all 0.15s; font-family: inherit; letter-spacing: 0.04em;
 }
 .pc-add-btn:hover { background: rgba(59,130,246,0.06); border-color: var(--accent); color: var(--accent); }
+
+/* ── INTERVIEWEES ── */
+.iv-edit-btn {
+  background: var(--bg4); border: 1px solid var(--border2); border-radius: 4px;
+  color: var(--text3); font-size: 11px; cursor: pointer; padding: 2px 7px;
+  flex-shrink: 0; transition: all 0.15s; font-family: inherit;
+}
+.iv-edit-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.iv-row { display: flex; gap: 8px; align-items: center; }
+.iv-row input {
+  flex: 1; min-width: 0; border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 8px 10px; font-size: 14px; font-family: inherit; outline: none;
+  transition: border-color 0.15s;
+}
+.iv-row input:focus { border-color: var(--accent); }
+.iv-row button {
+  background: none; border: none; color: var(--text3); font-size: 14px;
+  cursor: pointer; flex-shrink: 0; padding: 4px; transition: color 0.15s;
+}
+.iv-row button:hover { color: var(--red); }
 
 /* ── QA ── */
 .qa-list { display: flex; flex-direction: column; gap: 2px; }
@@ -845,8 +865,8 @@ button, .s-card, .pc-product, .dbar-tab, .ptab, .pc-add-btn, .post-empty { curso
     </div>
     <label>攤位</label>
     <input type="text" id="v-booth" placeholder="例：南港一館一樓 K0802">
-    <label>受訪者</label>
-    <input type="text" id="v-interviewee" placeholder="例：許維哲｜產品行銷經理">
+    <label>受訪者（可填多位，用逗號分隔；姓名｜職稱）</label>
+    <input type="text" id="v-interviewee" placeholder="例：許維哲｜產品行銷經理, 王小美｜業務經理">
     <label>負責業務</label>
     <input type="text" id="v-am" placeholder="例：Iris">
     <label>拍攝類型</label>
@@ -909,6 +929,19 @@ button, .s-card, .pc-product, .dbar-tab, .ptab, .pc-add-btn, .post-empty { curso
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-highlight')">取消</button>
       <button class="btn-confirm" onclick="confirmAddHighlight()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 受訪者名單 -->
+<div class="modal-backdrop" id="modal-interviewees">
+  <div class="modal">
+    <div class="modal-title">受訪者名單</div>
+    <div id="iv-rows" style="display:flex;flex-direction:column;gap:8px;margin:4px 0 12px;"></div>
+    <button type="button" class="pc-add-btn" onclick="addIntervieweeRow()">＋ 新增受訪者</button>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-interviewees')">取消</button>
+      <button class="btn-confirm" onclick="confirmInterviewees()">儲存</button>
     </div>
   </div>
 </div>
@@ -1123,6 +1156,57 @@ window.removeCameraName = async function(ci) {
   renderPhCrew(v);
 };
 
+// ── INTERVIEWEES: 受訪者名單 (name + title, supports multiple people) ──
+function getInterviewees(v) {
+  // Migrate legacy single `interviewee` string field into a list, once.
+  if (!v.interviewees) {
+    v.interviewees = v.interviewee ? [{ name: v.interviewee, title: '' }] : [];
+  }
+  return v.interviewees;
+}
+function formatInterviewees(v) {
+  const list = getInterviewees(v);
+  if (!list.length) return '未填寫';
+  return list.map(e => e.title ? `${e.name}（${e.title}）` : e.name).join('、');
+}
+window.openIntervieweesModal = function() {
+  const v = getVendor(); if (!v) return;
+  const list = getInterviewees(v);
+  const rows = document.getElementById('iv-rows');
+  rows.innerHTML = '';
+  if (list.length) {
+    list.forEach(e => addIntervieweeRow(e.name, e.title));
+  } else {
+    addIntervieweeRow();
+  }
+  openModal('modal-interviewees');
+};
+window.addIntervieweeRow = function(name, title) {
+  const rows = document.getElementById('iv-rows');
+  const row = document.createElement('div');
+  row.className = 'iv-row';
+  row.innerHTML = `
+    <input type="text" class="iv-name-input" value="${(name||'').replace(/"/g,'&quot;')}" placeholder="姓名">
+    <input type="text" class="iv-title-input" value="${(title||'').replace(/"/g,'&quot;')}" placeholder="職稱">
+    <button type="button" onclick="this.parentElement.remove()" title="移除">✕</button>
+  `;
+  rows.appendChild(row);
+};
+window.confirmInterviewees = async function() {
+  const v = getVendor(); if (!v) return;
+  const rows = document.querySelectorAll('#iv-rows .iv-row');
+  const list = [];
+  rows.forEach(row => {
+    const name = row.querySelector('.iv-name-input').value.trim();
+    const title = row.querySelector('.iv-title-input').value.trim();
+    if (name || title) list.push({ name, title });
+  });
+  v.interviewees = list;
+  await saveData(true);
+  closeModal('modal-interviewees');
+  renderPanel();
+};
+
 function renderPanel() {
   const v = getVendor(); if (!v) return;
   document.getElementById('panel-empty').style.display = 'none';
@@ -1138,7 +1222,7 @@ function renderPanel() {
   // Editable meta (booth / interviewee / am + badges)
   document.getElementById('ph-meta').innerHTML = `
     <span style="display:inline-flex;align-items:center;gap:4px;margin-right:16px;">📍 <input class="editable" style="font-size:14px;width:180px;" value="${v.booth||''}" placeholder="攤位" onchange="updateVendorField('booth',this.value)"></span>
-    <span style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;">🧑‍💼 受訪者：<input class="editable" id="meta-interviewee" style="font-size:14px;width:130px;" value="${v.interviewee||''}" placeholder="受訪者" onchange="updateVendorField('interviewee',this.value)"></span>
+    <span style="display:inline-flex;align-items:center;gap:6px;margin-right:8px;">🧑‍💼 受訪者：<span style="font-size:14px;color:var(--text);">${formatInterviewees(v)}</span><button class="iv-edit-btn" onclick="openIntervieweesModal()" title="編輯受訪者名單">✎</button></span>
     <span style="display:inline-flex;align-items:center;gap:4px;">👤 業務：<input class="editable" id="meta-am" style="font-size:14px;width:80px;" value="${v.am||''}" placeholder="業務" onchange="updateVendorField('am',this.value)"></span>
     <div style="display:flex;align-items:center;gap:12px;margin-top:8px;width:100%;">
       <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:5px 12px;border-radius:5px;border:1.5px solid ${v.interview!==false?'var(--green)':'var(--border2)'};background:${v.interview!==false?'var(--green-bg)':'var(--bg4)'};color:${v.interview!==false?'var(--green)':'var(--text3)'};transition:all 0.15s;">
@@ -1175,12 +1259,8 @@ window.updateVendorField = function(field, value) {
     const el = document.getElementById('meta-am');
     if (el && el !== document.activeElement) el.value = value;
   }
-  if (field === 'interviewee') {
-    const el = document.getElementById('meta-interviewee');
-    if (el && el !== document.activeElement) el.value = value;
-  }
   // Also re-render info tab to sync
-  if (['booth','interviewee','am','notes'].includes(field)) {
+  if (['booth','am','notes'].includes(field)) {
     renderPTabInfo(v);
   }
   saveData(true);
@@ -1222,7 +1302,7 @@ function renderPTabInfo(v) {
       <div class="pc-section-title">📍 拍攝資訊</div>
       <div class="pc-card">
         <div class="pc-row"><div class="pc-key">攤位</div><div class="pc-val"><input class="editable-dark" value="${v.booth||''}" placeholder="填寫攤位" onchange="updateVendorField('booth',this.value)"></div></div>
-        <div class="pc-row"><div class="pc-key">受訪者</div><div class="pc-val"><input class="editable-dark" value="${v.interviewee||''}" placeholder="填寫受訪者" onchange="updateVendorField('interviewee',this.value)"></div></div>
+        <div class="pc-row"><div class="pc-key">受訪者</div><div class="pc-val" style="display:flex;align-items:center;gap:8px;"><span>${formatInterviewees(v)}</span><button class="iv-edit-btn" onclick="openIntervieweesModal()" title="編輯受訪者名單">✎ 編輯</button></div></div>
         <div class="pc-row"><div class="pc-key">負責業務</div><div class="pc-val"><input class="editable-dark" value="${v.am||''}" placeholder="填寫業務" onchange="updateVendorField('am',this.value)"></div></div>
         <div class="pc-row" style="align-items:flex-start;"><div class="pc-key" style="padding-top:8px;">備注</div><div class="pc-val">
           <textarea
@@ -1697,12 +1777,16 @@ document.querySelectorAll('.modal-backdrop').forEach(el=>{
 window.confirmAddVendor = async function() {
   const name=document.getElementById('v-name').value.trim(); if(!name)return;
   const cameraNames = document.getElementById('v-cameras').value.split(/[,，、]/).map(s=>s.trim()).filter(Boolean);
+  const interviewees = document.getElementById('v-interviewee').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean).map(seg=>{
+    const [n,t] = seg.split('｜').map(x=>(x||'').trim());
+    return { name:n||'', title:t||'' };
+  });
   const v={
     id:'v'+Date.now(), shortname:name, company:name,
     start:document.getElementById('v-start').value||'00:00',
     end:document.getElementById('v-end').value||'00:00',
     booth:document.getElementById('v-booth').value.trim(),
-    interviewee:document.getElementById('v-interviewee').value.trim(),
+    interviewees:interviewees,
     am:document.getElementById('v-am').value.trim(),
     host:document.getElementById('v-host').value.trim(),
     cameraNames:cameraNames,

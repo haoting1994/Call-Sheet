@@ -259,8 +259,8 @@ html, body {
 .product-card { background: var(--bg2); border-radius: 12px; margin-bottom: 10px; overflow: hidden; border: 1.5px solid var(--border); box-shadow: 0 1px 4px rgba(26,86,219,0.04); }
 .product-card-top { padding: 10px 14px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f0f4ff; }
 .product-card-title { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; font-family: 'SF Mono', monospace; }
-.product-img-zone { background: var(--bg4); width: 100%; aspect-ratio: 16 / 5; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
-.product-img-zone img { width: 100%; height: 100%; object-fit: contain; }
+.product-img-zone { background: var(--bg4); width: 100%; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
+.product-img-zone img { width: 100%; height: 100%; object-fit: cover; }
 .img-placeholder { text-align: center; }
 .img-placeholder-icon { font-size: 32px; color: var(--border2); }
 .img-placeholder-text { font-size: 12px; color: var(--text3); margin-top: 6px; }
@@ -423,8 +423,8 @@ html, body {
     </div>
     <label>攤位</label>
     <input type="text" id="v-booth" placeholder="例：南港一館一樓 K0802">
-    <label>受訪者</label>
-    <input type="text" id="v-interviewee" placeholder="例：許維哲｜產品行銷經理">
+    <label>受訪者（可填多位，用逗號分隔；姓名｜職稱）</label>
+    <input type="text" id="v-interviewee" placeholder="例：許維哲｜產品行銷經理, 王小美｜業務經理">
     <label>負責業務</label>
     <input type="text" id="v-am" placeholder="例：Iris">
     <label>拍攝類型</label>
@@ -1145,6 +1145,14 @@ function getVendor() {
   return (vendors[currentDetail.dateId] || []).find(x => x.id === currentDetail.vendorId);
 }
 
+function formatInterviewees(v) {
+  // Supports the new multi-person list (array of {name,title}) and the legacy single-string field.
+  if (Array.isArray(v.interviewees)) {
+    if (!v.interviewees.length) return '—';
+    return v.interviewees.map(e => e.title ? `${e.name}（${e.title}）` : e.name).join('、');
+  }
+  return v.interviewee || '—';
+}
 function renderInfoTab(v) {
   const floorImg = v.floorplan || '';
   document.getElementById('d-info-body').innerHTML = `
@@ -1175,7 +1183,7 @@ function renderInfoTab(v) {
     <div class="info-card">
       <div class="info-card-header">📍 拍攝資訊</div>
       <div class="info-row"><div class="info-key">攤位</div><div class="info-val">${v.booth}</div></div>
-      <div class="info-row"><div class="info-key">受訪者</div><div class="info-val">${v.interviewee}</div></div>
+      <div class="info-row"><div class="info-key">受訪者</div><div class="info-val">${formatInterviewees(v)}</div></div>
       <div class="info-row"><div class="info-key">負責業務</div><div class="info-val">${v.am}</div></div>
       <div class="info-row"><div class="info-key">備注</div><div class="info-val" style="color:var(--text2);">${v.notes||'—'}</div></div>
     </div>`;
@@ -1323,6 +1331,10 @@ window.openAddVendor = function() {
 window.confirmAddVendor = async function() {
   const name = document.getElementById('v-name').value.trim();
   if (!name) return;
+  const interviewees = document.getElementById('v-interviewee').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean).map(seg=>{
+    const [n,t] = seg.split('｜').map(x=>(x||'').trim());
+    return { name:n||'', title:t||'' };
+  });
   const v = {
     id: 'v' + Date.now(),
     shortname: name,
@@ -1330,7 +1342,7 @@ window.confirmAddVendor = async function() {
     start: document.getElementById('v-start').value || '00:00',
     end: document.getElementById('v-end').value || '00:00',
     booth: document.getElementById('v-booth').value.trim(),
-    interviewee: document.getElementById('v-interviewee').value.trim(),
+    interviewees: interviewees,
     am: document.getElementById('v-am').value.trim(),
     exclusive: chipState.exclusive || false,
     reel: chipState.reel,
