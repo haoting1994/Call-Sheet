@@ -272,8 +272,11 @@ html, body {
 .qa-card { background: var(--bg2); border-radius: 12px; margin-bottom: 10px; overflow: hidden; border: 1.5px solid var(--border); box-shadow: 0 1px 4px rgba(26,86,219,0.04); }
 .qa-item { padding: 11px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-start; }
 .qa-item:last-child { border-bottom: none; }
-.qa-num { width: 22px; height: 22px; background: var(--accent); color: #fff; border-radius: 4px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; font-family: 'SF Mono', monospace; }
+.qa-num { min-width: 26px; height: 22px; padding: 0 4px; background: var(--accent); color: #fff; border-radius: 4px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; font-family: 'SF Mono', monospace; }
 .qa-text { font-size: 14px; color: var(--text); line-height: 1.6; flex: 1; }
+.qa-section-block { background: var(--bg2); border: 1.5px dashed var(--border2); border-radius: 10px; padding: 11px 14px; margin-bottom: 10px; }
+.qa-section-label { font-family: 'SF Mono', monospace; font-size: 10.5px; font-weight: 700; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+.qa-section-text { font-size: 13.5px; color: var(--text2); line-height: 1.6; white-space: pre-wrap; }
 .delete-btn { background: none; border: none; color: var(--border2); font-size: 18px; cursor: pointer; padding: 0 4px; flex-shrink: 0; }
 .qa-add-btn { width: 100%; background: var(--bg3); border: 1.5px dashed var(--border); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--text3); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px; }
 
@@ -1231,13 +1234,16 @@ function renderProductsTab(v) {
 function renderQATab(v) {
   let html = '';
   const qa = v.qa || [];
+  if (v.qaOpening) {
+    html += `<div class="qa-section-block"><div class="qa-section-label">🎬 開場</div><div class="qa-section-text">${v.qaOpening}</div></div>`;
+  }
   if (qa.length === 0) {
     html += '<div class="empty-state" style="padding:32px 20px;">📝 尚無訪綱<br><span style="font-size:12px;color:#ccc;margin-top:4px;display:block;">點下方按鈕新增題目</span></div>';
   } else {
     html += '<div class="qa-card">';
     qa.forEach((q, qi) => {
       html += `<div class="qa-item">
-        <div class="qa-num">${qi+1}</div>
+        <div class="qa-num">Q${qi+1}</div>
         <div class="qa-text">${q}</div>
         <button class="delete-btn" onclick="deleteQA(${qi})">✕</button>
       </div>`;
@@ -1245,6 +1251,9 @@ function renderQATab(v) {
     html += '</div>';
   }
   html += `<button class="qa-add-btn" onclick="openAddQA()">＋ 新增訪問題目</button>`;
+  if (v.qaClosing) {
+    html += `<div class="qa-section-block" style="margin-top:14px;"><div class="qa-section-label">🏁 結尾</div><div class="qa-section-text">${v.qaClosing}</div></div>`;
+  }
   document.getElementById('d-qa-body').innerHTML = html;
 }
 

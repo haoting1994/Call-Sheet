@@ -504,13 +504,27 @@ html, body {
 }
 .pc-qa-item:hover { border-color: var(--accent); box-shadow: 0 3px 12px rgba(26,86,219,0.1); }
 .pc-qa-num {
-  width: 22px; height: 22px; background: var(--accent); color: #fff;
+  min-width: 26px; height: 22px; padding: 0 4px; background: var(--accent); color: #fff;
   border-radius: 4px; font-size: 10px; font-weight: 700; font-family: 'SF Mono', monospace;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
 }
 .pc-qa-text { font-size: 15px; color: var(--text); line-height: 1.7; flex: 1; }
 .pc-qa-del { background: none; border: none; color: var(--text3); font-size: 16px; cursor: pointer; flex-shrink: 0; transition: color 0.12s; }
 .pc-qa-del:hover { color: var(--red); }
+.qa-section-block {
+  background: var(--bg2); border: 1.5px dashed var(--border2); border-radius: 8px;
+  padding: 12px 14px; margin-bottom: 16px;
+}
+.qa-section-label {
+  font-family: 'SF Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text3);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;
+}
+.qa-freeform {
+  width: 100%; border: none; background: transparent; font-family: inherit;
+  color: var(--text); outline: none; resize: none; line-height: 1.7; font-size: 14px;
+  overflow: hidden; min-height: 0; padding: 0;
+}
+.qa-freeform::placeholder { color: var(--text3); }
 
 /* ── HIGHLIGHTS ── */
 .hl-list { display: flex; flex-direction: column; gap: 8px; }
@@ -1529,12 +1543,21 @@ function renderPTabQA(v) {
     <div id="qa-ref-uploading" style="display:none;font-size:12px;color:var(--text3);margin-top:6px;">⏫ 上傳中...</div>
   </div>`;
 
-  // ── QA list ──
+  // ── 開場 ──
+  html += `<div class="qa-section-block">
+    <div class="qa-section-label">🎬 開場</div>
+    <textarea class="qa-freeform" rows="1"
+      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+      onchange="updateVendorField('qaOpening',this.value)"
+      placeholder="輸入開場白／串場文字...">${v.qaOpening||''}</textarea>
+  </div>`;
+
+  // ── QA list (Q1, Q2, Q3...) ──
   html += '<div class="qa-list">';
   if (!qa.length) html += '<div style="text-align:center;padding:32px;color:#ccc;">尚無訪問題目，點下方新增</div>';
   qa.forEach((q,qi) => {
     html += `<div class="pc-qa-item">
-      <div class="pc-qa-num">${qi+1}</div>
+      <div class="pc-qa-num">Q${qi+1}</div>
       <textarea rows="1"
         oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
         onblur="updateQA(${qi},this.value);this.style.borderBottomColor='transparent';this.style.background='transparent';this.style.padding='0'"
@@ -1546,6 +1569,16 @@ function renderPTabQA(v) {
     </div>`;
   });
   html += `</div><br><button class="pc-add-btn" onclick="document.getElementById('qa-text').value='';openModal('modal-qa')">＋ 新增訪問題目</button>`;
+
+  // ── 結尾 ──
+  html += `<div class="qa-section-block" style="margin-top:20px;">
+    <div class="qa-section-label">🏁 結尾</div>
+    <textarea class="qa-freeform" rows="1"
+      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+      onchange="updateVendorField('qaClosing',this.value)"
+      placeholder="輸入結尾／收尾文字...">${v.qaClosing||''}</textarea>
+  </div>`;
+
   document.getElementById('ptab-qa').innerHTML = html;
   // Auto-resize all textareas after render
   document.querySelectorAll('#ptab-qa textarea').forEach(ta => {
