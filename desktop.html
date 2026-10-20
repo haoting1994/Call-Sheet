@@ -416,7 +416,7 @@ html, body {
 }
 .pc-product-subhead span.hint { font-weight: 400; letter-spacing: 0.02em; color: var(--text3); opacity: 0.85; text-transform: none; font-size: 10.5px; }
 .pc-product-img {
-  width: 100%; aspect-ratio: 4 / 3; background: var(--bg3);
+  width: 100%; aspect-ratio: 16 / 9; background: var(--bg3);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; position: relative; overflow: hidden;
   border-bottom: 1px solid var(--border); transition: background 0.15s;
@@ -495,34 +495,54 @@ html, body {
 }
 .iv-row button:hover { color: var(--red); }
 
-/* ── QA ── */
-.qa-list { display: flex; flex-direction: column; gap: 2px; }
+/* ── QA (full shooting-day rundown) ── */
+.qa-list { display: flex; flex-direction: column; gap: 10px; }
 .pc-qa-item {
   background: #fff; border: 1.5px solid var(--border); border-radius: 8px;
-  padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
   transition: all 0.15s; box-shadow: 0 1px 3px rgba(26,86,219,0.04);
 }
 .pc-qa-item:hover { border-color: var(--accent); box-shadow: 0 3px 12px rgba(26,86,219,0.1); }
+.qa-item-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .pc-qa-num {
   min-width: 26px; height: 22px; padding: 0 4px; background: var(--accent); color: #fff;
   border-radius: 4px; font-size: 10px; font-weight: 700; font-family: 'SF Mono', monospace;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .pc-qa-text { font-size: 15px; color: var(--text); line-height: 1.7; flex: 1; }
-.pc-qa-del { background: none; border: none; color: var(--text3); font-size: 16px; cursor: pointer; flex-shrink: 0; transition: color 0.12s; }
+.pc-qa-del { background: none; border: none; color: var(--text3); font-size: 16px; cursor: pointer; flex-shrink: 0; transition: color 0.12s; margin-left: auto; }
 .pc-qa-del:hover { color: var(--red); }
+.qa-scene-input, .qa-person-input, .qa-title-input {
+  border: 1px solid var(--border); border-radius: 5px; padding: 5px 8px;
+  font-size: 12px; font-family: inherit; color: var(--text2); outline: none;
+  background: var(--bg3); transition: border-color 0.15s, background 0.15s; min-width: 0;
+}
+.qa-scene-input { flex: 1.3 1 100px; }
+.qa-person-input { flex: 1 1 80px; }
+.qa-title-input { flex: 0.8 1 70px; }
+.qa-scene-input::placeholder, .qa-person-input::placeholder, .qa-title-input::placeholder { color: var(--text3); }
+.qa-scene-input:focus, .qa-person-input:focus, .qa-title-input:focus { border-color: var(--accent); background: #fff; }
+.qa-notes-input {
+  width: 100%; border: 1px dashed var(--border2); border-radius: 5px; padding: 5px 8px;
+  font-size: 12px; font-family: inherit; color: var(--text3); outline: none;
+  background: transparent; box-sizing: border-box; transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.qa-notes-input::placeholder { color: var(--text3); }
+.qa-notes-input:focus { border-color: var(--accent); color: var(--text2); background: rgba(59,130,246,0.04); }
 .qa-section-block {
   background: var(--bg2); border: 1.5px dashed var(--border2); border-radius: 8px;
   padding: 12px 14px; margin-bottom: 16px;
 }
+.qa-section-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+.qa-section-top .qa-scene-input { flex: 1 1 180px; max-width: 280px; }
 .qa-section-label {
   font-family: 'SF Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text3);
-  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;
+  letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
 }
 .qa-freeform {
   width: 100%; border: none; background: transparent; font-family: inherit;
   color: var(--text); outline: none; resize: none; line-height: 1.7; font-size: 14px;
-  overflow: hidden; min-height: 0; padding: 0;
+  overflow: hidden; min-height: 0; padding: 0; box-sizing: border-box;
 }
 .qa-freeform::placeholder { color: var(--text3); }
 
@@ -1513,13 +1533,21 @@ window.confirmAddProduct = async function() {
   closeModal('modal-product'); await saveData(true); renderPTabProducts(v); renderPTabPost(v);
 };
 
-// ── QA TAB ──
+// ── QA TAB (full shooting-day rundown) ──
+function getQAList(v) {
+  if (!v.qa) v.qa = [];
+  // Migrate legacy plain-string questions into rundown objects, once.
+  v.qa = v.qa.map(q => (typeof q === 'string') ? { text: q, scene: '', person: '', title: '', notes: '' } : q);
+  return v.qa;
+}
 function renderPTabQA(v) {
-  const qa = v.qa || [];
+  const qa = getQAList(v);
   const qaRef = v.qaRef || '';
+  const intervieweeNames = getInterviewees(v).map(e => e.name).filter(Boolean);
+  const datalistHtml = `<datalist id="iv-names-datalist">${intervieweeNames.map(n=>`<option value="${n}">`).join('')}</datalist>`;
 
   // ── Reference file / URL section ──
-  let html = `<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:16px;box-shadow:0 1px 4px rgba(26,86,219,0.05);">
+  let html = datalistHtml + `<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:16px;box-shadow:0 1px 4px rgba(26,86,219,0.05);">
     <div style="font-family:'SF Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;">📎 訪綱檔案 / 參考連結</div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <input type="text" id="qa-ref-input" value="${qaRef}"
@@ -1545,34 +1573,46 @@ function renderPTabQA(v) {
 
   // ── 開場 ──
   html += `<div class="qa-section-block">
-    <div class="qa-section-label">🎬 開場</div>
+    <div class="qa-section-top">
+      <div class="qa-section-label">🎬 開場</div>
+      <input type="text" class="qa-scene-input" value="${v.qaOpeningScene||''}" placeholder="場景位置（例：主視覺背板）" onchange="updateVendorField('qaOpeningScene',this.value)">
+    </div>
     <textarea class="qa-freeform" rows="1"
       oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
       onchange="updateVendorField('qaOpening',this.value)"
       placeholder="輸入開場白／串場文字...">${v.qaOpening||''}</textarea>
   </div>`;
 
-  // ── QA list (Q1, Q2, Q3...) ──
+  // ── QA list (Q1, Q2, Q3... as a full rundown: scene + question + interviewee + notes) ──
   html += '<div class="qa-list">';
   if (!qa.length) html += '<div style="text-align:center;padding:32px;color:#ccc;">尚無訪問題目，點下方新增</div>';
   qa.forEach((q,qi) => {
     html += `<div class="pc-qa-item">
-      <div class="pc-qa-num">Q${qi+1}</div>
+      <div class="qa-item-top">
+        <div class="pc-qa-num">Q${qi+1}</div>
+        <input type="text" class="qa-scene-input" value="${q.scene||''}" placeholder="📍 場景位置" onchange="updateQAField(${qi},'scene',this.value)">
+        <input type="text" class="qa-person-input" list="iv-names-datalist" value="${q.person||''}" placeholder="🧑 受訪者姓名" onchange="updateQAField(${qi},'person',this.value)">
+        <input type="text" class="qa-title-input" value="${q.title||''}" placeholder="💼 職稱" onchange="updateQAField(${qi},'title',this.value)">
+        <button class="pc-qa-del" onclick="deleteQA(${qi})">✕</button>
+      </div>
       <textarea rows="1"
         oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
-        onblur="updateQA(${qi},this.value);this.style.borderBottomColor='transparent';this.style.background='transparent';this.style.padding='0'"
-        style="flex:1;border:none;background:transparent;font-family:inherit;color:var(--text);outline:none;resize:none;line-height:1.7;font-size:15px;border-bottom:1.5px dashed transparent;transition:border-color 0.15s;overflow:hidden;min-height:0;"
+        onblur="updateQAField(${qi},'text',this.value);this.style.borderBottomColor='transparent';this.style.background='transparent';this.style.padding='0'"
+        style="width:100%;border:none;background:transparent;font-family:inherit;color:var(--text);outline:none;resize:none;line-height:1.7;font-size:15px;border-bottom:1.5px dashed transparent;transition:border-color 0.15s;overflow:hidden;min-height:0;box-sizing:border-box;"
         onmouseover="this.style.borderBottomColor='#aaa'"
         onmouseout="if(document.activeElement!==this)this.style.borderBottomColor='transparent'"
-        onfocus="this.style.borderBottomColor='#0d1b2a';this.style.background='#f0f4ff';this.style.borderRadius='4px';this.style.padding='4px 6px'">${q}</textarea>
-      <button class="pc-qa-del" onclick="deleteQA(${qi})">✕</button>
+        onfocus="this.style.borderBottomColor='#0d1b2a';this.style.background='#f0f4ff';this.style.borderRadius='4px';this.style.padding='4px 6px'">${q.text||''}</textarea>
+      <input type="text" class="qa-notes-input" value="${q.notes||''}" placeholder="📝 注意畫面／注意事項" onchange="updateQAField(${qi},'notes',this.value)">
     </div>`;
   });
   html += `</div><br><button class="pc-add-btn" onclick="document.getElementById('qa-text').value='';openModal('modal-qa')">＋ 新增訪問題目</button>`;
 
   // ── 結尾 ──
   html += `<div class="qa-section-block" style="margin-top:20px;">
-    <div class="qa-section-label">🏁 結尾</div>
+    <div class="qa-section-top">
+      <div class="qa-section-label">🏁 結尾</div>
+      <input type="text" class="qa-scene-input" value="${v.qaClosingScene||''}" placeholder="場景位置（例：出入口前）" onchange="updateVendorField('qaClosingScene',this.value)">
+    </div>
     <textarea class="qa-freeform" rows="1"
       oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
       onchange="updateVendorField('qaClosing',this.value)"
@@ -1586,11 +1626,17 @@ function renderPTabQA(v) {
     ta.style.height = ta.scrollHeight + 'px';
   });
 }
+window.updateQAField = async function(qi, field, value) {
+  const v = getVendor(); if (!v || !v.qa || !v.qa[qi]) return;
+  v.qa[qi][field] = value;
+  await saveData(true);
+};
 window.confirmAddQA = async function() {
   const v=getVendor(); if(!v)return;
   const text=document.getElementById('qa-text').value.trim(); if(!text)return;
-  if(!v.qa)v.qa=[];
-  v.qa.push(text); closeModal('modal-qa'); await saveData(true); renderPTabQA(v);
+  getQAList(v);
+  v.qa.push({ text, scene:'', person:'', title:'', notes:'' });
+  closeModal('modal-qa'); await saveData(true); renderPTabQA(v);
 };
 
 // ── POST PRODUCTION TAB ──
@@ -1765,12 +1811,6 @@ window.handleQARefUpload = async function(e) {
     renderPTabQA(v);
   } catch(err) { alert('上傳失敗：' + err.message); }
   if (uploading) uploading.style.display = 'none';
-};
-
-window.updateQA = async function(qi, value) {
-  const v=getVendor(); if(!v||v.qa[qi]===undefined)return;
-  v.qa[qi]=value;
-  await saveData(true); // immediate save, not debounced
 };
 
 // ── ADD DATE ──
